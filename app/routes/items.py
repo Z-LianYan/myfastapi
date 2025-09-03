@@ -1,7 +1,8 @@
 from fastapi import APIRouter,Query,HTTPException
+from fastapi.exceptions import RequestValidationError
 from app.models.item import CreateItemParams,CreateItemResponse
 
-
+from app.utils.httpRes import success,fail,ResStructure
 
 
 
@@ -27,9 +28,21 @@ def get_items(
     return {"items": fake_items_db}
 
 
-@router.post("/items", response_model=CreateItemResponse)
+@router.post("/items",response_model=ResStructure)
 def create_item(item: CreateItemParams):
-    fake_items_db.append(item.model_dump())
-    # print("<UNK>",item.name)
-    if item.name: raise HTTPException(status_code=401, detail="Missing age")
-    return {"message": "Item created successfully", "item": fake_items_db}
+    try:
+        if len(item.name) <= 1:
+            raise HTTPException(
+                status_code=400,
+                detail="名字长度不能小于两个字符",
+            )
+            # raise Exception("名字长度不能小于两个字符")
+        fake_items_db.append(item.model_dump())
+        return success({
+            "code": 200,
+            "data": fake_items_db,
+            "message": "操作成功"
+        })
+    except Exception as e:
+        raise
+

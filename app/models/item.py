@@ -13,6 +13,7 @@ from typing import Optional,List
     文档描述
         description="xxx" 会显示在 Swagger UI 中
 '''
+# 定义数据模型
 class CreateItemParams(BaseModel):
     name: str = Field(..., min_length=1, max_length=50, description="商品名称，1-50个字符")
     price: float = Field(..., ge=0, le=1000, description="商品价格，0-1000之间")
@@ -25,8 +26,8 @@ class Item(BaseModel):
     price: float
     description: str | None = None
     # 忽略未定义字段
-    model_config: ConfigDict = ConfigDict(extra="ignore")
+    # model_config: ConfigDict = ConfigDict(extra="ignore")
 
 class CreateItemResponse(BaseModel):
-    message: str
+    msg: str
     item: List[Item]
