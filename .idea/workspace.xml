@@ -5,14 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d19521da-d395-46e8-a167-cd811687bced" name="更改" comment="">
-      <change afterPath="$PROJECT_DIR$/app/core/middleware/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/core/middleware/auth.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/core/middleware/cors.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/core/middleware/logging.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/core/middleware/timing.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/main.py" afterDir="false" />
     </list>

@@ -22,3 +22,8 @@ app.include_router(items.router, prefix="/api", tags=["项目"]) # tags 自动�
 @app.get("/")
 def root(name: str):
     return {"message": "Welcome to FastAPI Demo " + name}
+
+
+'''
+12345
+'''
