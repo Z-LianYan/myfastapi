@@ -1,5 +1,7 @@
-from fastapi import APIRouter,Query,HTTPException
+from fastapi import APIRouter,Query,HTTPException,Depends,Header
 from fastapi.exceptions import RequestValidationError
+from fastapi.security import oauth2
+
 from app.models.item import CreateItemParams,CreateItemResponse
 
 from app.utils.httpRes import success,fail,ResStructure
@@ -28,8 +30,16 @@ def get_items(
     return {"items": fake_items_db}
 
 
+def auth_guard(authorization: str = Header(None)):
+    if not authorization:
+        raise HTTPException(401, "未登录")
+    return {"user_id": 1}
+
 @router.post("/items",response_model=ResStructure)
-def create_item(item: CreateItemParams):
+def create_item(
+        item: CreateItemParams,
+        accesstoken: str = Depends(auth_guard),
+):
     try:
         if len(item.name) <= 1:
             raise HTTPException(
