@@ -26,7 +26,8 @@ fake_items_db = []
 @router.get("/items")
 def get_items(
         name: str = Query(..., min_length=2, max_length=3, description="商品名称"),
-        price: float = Query(0, ge=0, le=1000, description="商品价格")
+        price: float = Query(0, ge=0, le=1000, description="商品价格"),
+        token: str = Header(...)
     ):
     fake_items_db.append({"name": name, "price": price})
     return {"items": fake_items_db}
@@ -46,6 +47,7 @@ def auth_guard(
         raise HTTPException(401, "token 无效")
     return {"user_id": 1}
 
+# token: str = Header(...) 这里的 Header(...) ...表示该参数必填（required）
 @router.post("/items",response_model=ResStructure)
 def create_item(user=Depends(auth_guard)):
     print('accessionToken==>>', user)
