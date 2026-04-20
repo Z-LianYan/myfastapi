@@ -1,3 +1,4 @@
+启动命令（项目根目录执行）：
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 忽略已安装的包：
