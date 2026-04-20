@@ -38,10 +38,10 @@ def get_items(
 #     return {"user_id": 1}
 
 def auth_guard(
-    aaa: HTTPAuthorizationCredentials = Depends(security)
+    credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
-    print('----',aaa)
-    token = aaa.credentials  # 自动去掉 Bearer
+    print('----',credentials)
+    token = credentials.credentials  # 自动去掉 Bearer
     if token != "123456":
         raise HTTPException(401, "token 无效")
     return {"user_id": 1}
