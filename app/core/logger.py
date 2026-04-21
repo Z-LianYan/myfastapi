@@ -25,8 +25,8 @@ logger.add(
 logger.add(
     "logs/access/{time:YYYY-MM-DD}.log",
     level="INFO",
-    rotation="00:00",
-    retention="30 days",
+    rotation="00:00", # 每天 00:00 切新文件
+    retention="30 days", # 日志文件保留时间
     encoding="utf-8"
 )
 
@@ -42,11 +42,16 @@ logger.add(
 )
 
 # 审计日志（退款、删除订单等）
-logger.add(
-    "logs/audit/{time:YYYY-MM-DD}.log",
-    level="INFO",
-    filter=lambda record: record["extra"].get("audit") is True,
-    rotation="00:00",
-    retention="180 days",
-    encoding="utf-8"
-)
+# logger.add(
+#     "logs/audit/{time:YYYY-MM-DD}.log",
+#     level="INFO",
+#     filter=lambda record: record["extra"].get("audit") is True,
+#     rotation="00:00",
+#     retention="180 days",
+#     encoding="utf-8"
+# )
+
+# 审计日志 使用方式
+# logger.bind(audit=True).info(
+#     "操作员1001 删除订单888"
+# )

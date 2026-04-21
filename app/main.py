@@ -2,33 +2,12 @@ from fastapi import FastAPI,Request,status
 from app.routes import items
 from app.core.exceptions import register_exception_handlers
 from app.core.middleware import logging_middleware,auth_middleware,timing_middleware,register_cors_middleware
-from app.core.logger import setup_logger
-
-setup_logger()
-import logging
-
+from app.core.loggerTracing import logger, register_trace_middleware
 
 app = FastAPI(title="FastAPI Demo Project", version="1.0.0")
 
-
-
-
-
-# logging.basicConfig(
-#     level=logging.INFO,
-#     filename="app.log",
-#     filemode="a",
-#     format="%(asctime)s - %(levelname)s - %(message)s"
-# )
-
-# logging.basicConfig(
-#     level=logging.INFO,
-#     format="%(asctime)s %(levelname)s %(message)s",
-#     handlers=[
-#         logging.StreamHandler(),          # 控制台
-#         logging.FileHandler("logs/app.log", encoding="utf-8")
-#     ]
-# )
+# 链式追踪日记
+register_trace_middleware(app)
 
 # 注册异常处理器
 register_exception_handlers(app)
