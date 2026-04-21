@@ -8,3 +8,6 @@ pip install -r requirements.txt --ignore-installed
 Swagger UI：
 api文档链接(可交互、可测试)：http://0.0.0.0:8000/docs
 api文档链接(简洁、易阅读): http://0.0.0.0:8000/redoc
+
+
+

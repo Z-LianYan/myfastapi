@@ -1,0 +1,19 @@
+2026-04-21 19:36:09,238 | INFO | app.core.middleware.logging | Request: POST http://localhost:8000/api/items
+2026-04-21 19:36:09,239 | INFO | app.core.middleware.logging | Client: 127.0.0.1
+2026-04-21 19:36:09,241 | INFO | app.core.middleware.logging | Response status: 200
+2026-04-21 19:36:10,430 | INFO | app.core.middleware.logging | Request: POST http://localhost:8000/api/items
+2026-04-21 19:36:10,430 | INFO | app.core.middleware.logging | Client: 127.0.0.1
+2026-04-21 19:36:10,432 | INFO | app.core.middleware.logging | Response status: 200
+2026-04-21 19:36:14,897 | INFO | app.core.middleware.logging | Request: POST http://localhost:8000/api/items
+2026-04-21 19:36:14,897 | INFO | app.core.middleware.logging | Client: 127.0.0.1
+2026-04-21 19:36:14,900 | INFO | app.core.middleware.logging | Response status: 200
+2026-04-21 19:50:58,066 | INFO | app.core.middleware.logging | Request: POST http://localhost:8000/api/items
+2026-04-21 19:50:58,067 | INFO | app.core.middleware.logging | Client: 127.0.0.1
+2026-04-21 19:50:58,071 | INFO | app.core.middleware.logging | Response status: 200
+2026-04-21 19:54:46,641 | INFO | app.core.exceptions.handlers | 异常处理器注册完成
+2026-04-21 19:54:50,175 | INFO | app.core.middleware.logging | Request: POST http://localhost:8000/api/items
+2026-04-21 19:54:50,175 | INFO | app.core.middleware.logging | Client: 127.0.0.1
+2026-04-21 19:54:50,176 | ERROR | app.core.middleware.logging | 支付失败
+NoneType: None
+2026-04-21 19:54:50,179 | INFO | app.core.middleware.logging | Response status: 200
+2026-04-21 19:55:07,028 | INFO | app.core.exceptions.handlers | 异常处理器注册完成
