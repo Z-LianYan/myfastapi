@@ -1,9 +1,12 @@
 import sys
 import uuid
+import os
 from contextvars import ContextVar
 
 from fastapi import FastAPI, Request
 from loguru import logger
+
+# DEV = os.getenv("ENV") == "dev"
 
 # =========================
 # 1. 每个请求独立保存 trace_id
@@ -40,8 +43,8 @@ logger.add(
 logger.add(
     "logs/access/{time:YYYY-MM-DD}.log",
     level="INFO",
-    rotation="00:00",
-    retention="30 days",
+    rotation="00:00",# 每天 00:00 切新文件
+    retention="30 days", # 日志文件保留时间
     encoding="utf-8",
     format="{time:YYYY-MM-DD HH:mm:ss} | {level} | trace={extra[trace_id]} | {message}"
 )
@@ -49,15 +52,15 @@ logger.add(
 logger.add(
     "logs/error/{time:YYYY-MM-DD}.log",
     level="ERROR",
-    rotation="00:00",
-    retention="90 days",
+    rotation="00:00", # 每天 00:00 切新文件
+    retention="90 days",# 日志文件保留时间
     encoding="utf-8",
-    backtrace=True,
-    diagnose=True,
+    backtrace=True, # 显示完整异常调用链
+    diagnose=True, # 报错时自动显示当时变量的值（超强） 注意： 生产环境要注意，可能泄露敏感信息，开发环境：True 生产环境：False
     format="{time:YYYY-MM-DD HH:mm:ss} | {level} | trace={extra[trace_id]} | {message}"
 )
 
-
+# print("dev===========",DEV, os.getenv("ENV"),os.environ)
 # =========================
 # 3. 注册 FastAPI 中间件
 # =========================

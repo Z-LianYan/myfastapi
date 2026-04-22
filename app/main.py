@@ -6,19 +6,22 @@ from app.core.loggerTracing import logger, register_trace_middleware
 
 app = FastAPI(title="FastAPI Demo Project", version="1.0.0")
 
-# 链式追踪日记
-register_trace_middleware(app)
+
 
 # 注册异常处理器
 register_exception_handlers(app)
 
 # 注册中间件
 register_cors_middleware(app)
-# 添加中间件
-app.middleware("http")(timing_middleware)
+
+'''
+注册 HTTP middleware
+“洋葱模型”越靠后越先执行
+'''
 app.middleware("http")(logging_middleware)
 app.middleware("http")(auth_middleware)
-
+app.middleware("http")(timing_middleware)
+register_trace_middleware(app) # 链式追踪日记
 
 
 # 注册路由

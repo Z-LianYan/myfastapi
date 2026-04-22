@@ -6,7 +6,7 @@ from app.models.item import CreateItemParams,CreateItemResponse
 
 from app.utils.httpRes import success,fail,ResStructure
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-
+from app.core.guards.authLogin import auth_guard
 
 router = APIRouter()
 
@@ -38,14 +38,14 @@ def get_items(
 #         raise HTTPException(401, "未登录")
 #     return {"user_id": 1}
 
-def auth_guard(
-    credentials: HTTPAuthorizationCredentials = Depends(security)
-):
-    print('----',credentials)
-    token = credentials.credentials  # 自动去掉 Bearer
-    if token != "123456":
-        raise HTTPException(401, "token 无效")
-    return {"user_id": 1}
+# def auth_guard(
+#     credentials: HTTPAuthorizationCredentials = Depends(security)
+# ):
+#     print('----',credentials)
+#     token = credentials.credentials  # 自动去掉 Bearer
+#     if token != "123456":
+#         raise HTTPException(401, "token 无效")
+#     return {"user_id": 1}
 
 # token: str = Header(...) 这里的 Header(...) ...表示该参数必填（required）
 @router.post("/items",response_model=ResStructure)

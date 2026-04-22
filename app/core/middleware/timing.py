@@ -3,7 +3,7 @@ from fastapi import Request
 
 
 async def timing_middleware(request: Request, call_next):
-    print("timing_middleware===>>")
+    # print("timing_middleware===>>")
     """处理时间中间件"""
     start_time = time.time()
 
