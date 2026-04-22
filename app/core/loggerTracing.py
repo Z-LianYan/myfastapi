@@ -44,7 +44,7 @@ logger.add(
     "logs/access/{time:YYYY-MM-DD}.log",
     level="INFO",
     rotation="00:00",# 每天 00:00 切新文件
-    retention="30 days", # 日志文件保留时间
+    retention="1 days", # 日志文件保留时间
     encoding="utf-8",
     format="{time:YYYY-MM-DD HH:mm:ss} | {level} | trace={extra[trace_id]} | {message}"
 )
@@ -65,10 +65,8 @@ logger.add(
 # 3. 注册 FastAPI 中间件
 # =========================
 def register_trace_middleware(app: FastAPI):
-    print("==========loggerTracing.py")
     @app.middleware("http")
     async def trace_middleware(request: Request, call_next):
-        print("==========loggerTracing.py---------")
         # 前端如果传了 trace_id 就沿用，没有就生成
         trace_id = request.headers.get("X-Trace-Id") or uuid.uuid4().hex[:16]
 
