@@ -13,3 +13,9 @@ api文档链接(简洁、易阅读): http://0.0.0.0:8000/redoc
 
 5.Python 项目的依赖清单文件, 自动生成
 pip freeze > requirements.txt
+
+
+开发环境启动：
+ENV=dev uvicorn app.main:app --reload
+生产环境启动：
+ENV=prod uvicorn app.main:app

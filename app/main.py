@@ -4,8 +4,15 @@ from app.core.exceptions import register_exception_handlers
 from app.core.middleware import logging_middleware,auth_middleware,timing_middleware,register_cors_middleware
 from app.core.loggerTracing import logger, register_trace_middleware
 
-app = FastAPI(title="FastAPI Demo Project", version="1.0.0")
+from app.core.config import settings
+app = FastAPI(
+    title="FastAPI Demo Project",
+    docs_url="/docs" if settings.ENABLE_DOCS else None,
+    redoc_url=None,
+    version="1.0.0"
+)
 
+print('settings.ENABLE_DOCS=====>>999',settings.ENABLE_DOCS,settings.DB_NAME)
 
 
 # 注册异常处理器
