@@ -1,5 +1,6 @@
 annotated-types==0.7.0
 anyio==4.10.0
+captcha==0.7.1
 cffi==2.0.0
 click==8.2.1
 cryptography==47.0.0
@@ -9,9 +10,11 @@ h11==0.16.0
 httptools==0.6.4
 idna==3.10
 loguru==0.7.3
+pillow==12.2.0
 pyasn1==0.6.3
 pycparser==3.0
 pydantic==2.11.7
+pydantic-settings==2.14.0
 pydantic_core==2.33.2
 python-dotenv==1.1.1
 python-jose==3.5.0

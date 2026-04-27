@@ -33,7 +33,7 @@ register_trace_middleware(app) # 链式追踪日记
 
 # 注册路由
 app.include_router(items.router, prefix="/api", tags=["项目"]) # tags 自动生成的 API 文档里分类显示
-app.include_router(admin.router, prefix="/api", tags=["管理员"]) # tags 自动生成的 API 文档里分类显示
+app.include_router(admin.router, prefix="/api/v1/admin", tags=["管理员"]) # tags 自动生成的 API 文档里分类显示
 
 @app.get("/")
 def root(name: str):

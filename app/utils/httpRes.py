@@ -1,6 +1,7 @@
 
 from pydantic import BaseModel,Field,ConfigDict
 from typing import Optional,Any, List
+from fastapi import Request
 
 class ResStructure(BaseModel):
     code: int
