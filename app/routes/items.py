@@ -1,4 +1,4 @@
-from fastapi import APIRouter,Query,HTTPException,Depends,Header
+from fastapi import APIRouter,Query,HTTPException,Depends,Header,Request,Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.security import oauth2
 
@@ -6,7 +6,7 @@ from app.models.item import CreateItemParams,CreateItemResponse
 
 from app.utils.httpRes import success,fail,ResStructure
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from app.core.guards.authLogin import auth_guard
+from app.core.guards.authLogin import login_auth_guard
 
 router = APIRouter()
 
@@ -49,7 +49,7 @@ def get_items(
 
 # token: str = Header(...) 这里的 Header(...) ...表示该参数必填（required）
 @router.post("/items",response_model=ResStructure)
-def create_item(user=Depends(auth_guard)):
+def create_item(user=Depends(login_auth_guard)):
     print('accessionToken==>>', user)
     return success({
         "code": 200,
