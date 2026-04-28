@@ -14,6 +14,7 @@ from io import BytesIO
 import base64
 from app.utils.httpRes import success,fail
 from fastapi import Request
+from app.core.redis import redis_manager
 
 router = APIRouter()
 
@@ -37,7 +38,8 @@ router = APIRouter()
 #     )
 
 @router.get("/getCaptcha",description="获取验证码返回图片",summary="获取验证码")
-def get_captcha():
+async def get_captcha():
+    await redis_manager.db1.set("nameRedis", "Tom22")
     """
     返回 base64 验证码
     """

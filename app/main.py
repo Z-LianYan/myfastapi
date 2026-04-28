@@ -3,16 +3,34 @@ from app.routes import items,admin
 from app.core.exceptions import register_exception_handlers
 from app.core.middleware import logging_middleware,auth_middleware,timing_middleware,register_cors_middleware
 from app.core.loggerTracing import logger, register_trace_middleware
-
+from app.core.redis import redis_manager
+from contextlib import asynccontextmanager
 from app.core.config import settings
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # 启动时执行
+    print("redis开始链接")
+    await redis_manager.connect()
+    print("Redis 已连接")
+
+    yield
+
+    # 关闭时执行
+    await redis_manager.close()
+    print("Redis 已关闭")
+
+
 app = FastAPI(
     title="FastAPI Demo Project",
     docs_url="/docs" if settings.ENABLE_DOCS else None,
     redoc_url=None,
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
-print('settings.ENABLE_DOCS=====>>999',settings.ENABLE_DOCS,settings.DB_NAME)
+print('settings.ENABLE_DOCS=====>>999',settings.ENABLE_DOCS,settings.DB_NAME,settings.REDIS_URL0)
+
 
 
 # 注册异常处理器

@@ -35,8 +35,9 @@ class Settings(BaseSettings):
     # ==========================================
     # Redis 配置
     # ==========================================
-    REDIS_HOST: str = "127.0.0.1"
+    REDIS_HOST: str = "106.53.161.135"
     REDIS_PORT: int = 6379
+    REDIS_PASSWORD: str = "julian888666"
 
     # ==========================================
     # JWT 配置
@@ -70,6 +71,20 @@ class Settings(BaseSettings):
         return (
             f"mysql+pymysql://{self.DB_USER}:{self.DB_PASSWORD}"
             f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        )
+
+    @property
+    def REDIS_URL0(self):
+        return (
+            f"redis://:{self.REDIS_PASSWORD}"
+            f"@{self.REDIS_HOST}:{self.REDIS_PORT}/0"
+        )
+
+    @property
+    def REDIS_URL1(self):
+        return (
+            f"redis://:{self.REDIS_PASSWORD}"
+            f"@{self.REDIS_HOST}:{self.REDIS_PORT}/1"
         )
 
 
