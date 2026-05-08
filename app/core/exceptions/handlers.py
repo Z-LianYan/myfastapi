@@ -27,8 +27,8 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content= fail({
-            "code": 422,
-            "message": str(error_msg),
+            "code": status.HTTP_422_UNPROCESSABLE_ENTITY,
+            "msg": str(error_msg),
             "path": request.url.path,
         })
     )
@@ -42,7 +42,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
         status_code=exc.status_code,
         content= fail({
             "code": exc.status_code,
-            "message": exc.detail,
+            "msg": exc.detail,
             "path": request.url.path,
         })
     )
@@ -66,11 +66,11 @@ async def global_exception_handler(request: Request, exc: Exception):
 
     return JSONResponse(
         status_code = status_code,
-        content = {
+        content = fail({
             "code": status_code,
-            "message": message,
+            "msg": message,
             "path": request.url.path,
-        }
+        })
     )
 
 

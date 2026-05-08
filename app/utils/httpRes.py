@@ -2,6 +2,7 @@
 from pydantic import BaseModel,Field,ConfigDict
 from typing import Optional,Any, List
 from fastapi import Request
+from datetime import datetime
 
 class ResStructure(BaseModel):
     code: int
@@ -21,6 +22,8 @@ def fail(data: dict):
         res.update({"msg": data.get("msg")})
     if data.get("path"):
         res.update({"path": data.get("path")})
+
+    res.update({"timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
     return res
 def success(data: dict):
     res = {
@@ -32,4 +35,5 @@ def success(data: dict):
         res.update({"msg": data.get("msg")})
     if data.get("path"):
         res.update({"path": data.get("path")})
+    res.update({"timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
     return res
