@@ -5,8 +5,8 @@ from fastapi import Request
 
 class ResStructure(BaseModel):
     code: int
-    data: Any
-    message: str | None = None
+    data: Any | None = None
+    msg: str | None = None
 
 
 
@@ -17,8 +17,8 @@ def fail(data: dict):
     }
     if data.get("data"):
         res['data'] = data.get("data")
-    if data.get("message"):
-        res.update({"message": data.get("message")})
+    if data.get("msg"):
+        res.update({"msg": data.get("msg")})
     if data.get("path"):
         res.update({"path": data.get("path")})
     return res
@@ -28,8 +28,8 @@ def success(data: dict):
     }
     if data.get("data"):
         res['data'] = data.get("data")
-    if data.get("message"):
-        res.update({"message": data.get("message")})
+    if data.get("msg"):
+        res.update({"msg": data.get("msg")})
     if data.get("path"):
         res.update({"path": data.get("path")})
     return res

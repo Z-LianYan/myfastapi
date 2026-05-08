@@ -29,8 +29,6 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-print('settings.ENABLE_DOCS=====>>999',settings.ENABLE_DOCS,settings.DB_NAME,settings.REDIS_URL0)
-
 
 
 # 注册异常处理器

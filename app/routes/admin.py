@@ -15,6 +15,7 @@ import base64
 from app.utils.httpRes import success,fail
 from fastapi import Request
 from app.core.redis import redis_manager
+from app.models.admin import AdminLoginParams
 
 router = APIRouter()
 
@@ -37,9 +38,9 @@ router = APIRouter()
 #         media_type="image/png"
 #     )
 
-@router.get("/getCaptcha",description="获取验证码返回图片",summary="获取验证码")
+@router.get("/getCaptcha",description="获取验证码返回图片",summary="获取验证码", response_model = ResStructure)
 async def get_captcha():
-    await redis_manager.db1.set("nameRedis", "Tom22")
+
     """
     返回 base64 验证码
     """
@@ -66,32 +67,41 @@ async def get_captcha():
 
     # 5. 生成唯一ID（给前端回传）
     captchaKey = str(uuid.uuid4())
-
-    # 这里应该存 Redis（后面讲）
-    print("captchaKey =", captchaKey)
-    print("答案 =", code)
+    await redis_manager.db0.setex(captchaKey, 60, code) # 60秒后过期
+    # await redis_manager.db0.set(captchaKey, code, ex=60) # 60秒后过期
+    # await redis_manager.db0.set(captchaKey, code, px=60000)  # 60秒后过期,毫秒为单位
 
     return success({
         "data": {
             "captchaKey": captchaKey,
-            "captchaBase64": img_base64,
+            "captchaBase64": "data:image/svg+xml;base64," + img_base64,
         },
-        "message": "ok"
+        "msg": "ok"
     })
 
 
 # def create_item(user=Depends(login_auth_guard)):
 @router.post("/login", response_model=ResStructure)
-def create_item():
+def create_item(body:AdminLoginParams):
     print('accessionToken==>>', "user")
     token = jwt.encode(
         {"a":"to_encode"},
         settings.JWT_SECRET, # 密钥
         algorithm="HS256" # 加密算法
     )
-    return success({
-        "code": 200,
-        "data": token,
-        "message": "操作成功"
-    })
+    try:
+        res = jwt.decode(token, settings.JWT_SECRET, algorithms=["HS256"])
+
+        return success({
+            "code": 200,
+            "data": res,
+            "msg": "操作成功"
+        })
+    except Exception as e:
+        print("exception===>", e)
+        return fail({
+            "code": 400,
+            "msg": str(e)
+        })
+
 
