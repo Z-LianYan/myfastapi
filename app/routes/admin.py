@@ -1,11 +1,8 @@
-from fastapi import APIRouter, Query, HTTPException, Depends, Header, Request, Response
+from fastapi import APIRouter, Depends
 
-from app.utils.httpRes import success, fail, ResStructure
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from app.core.guards.authLogin import login_auth_guard
+from app.utils.httpRes import ResStructure
 from jose import jwt
 from app.core.config import settings
-from fastapi.responses import StreamingResponse
 from captcha.image import ImageCaptcha
 import random
 import string
@@ -13,9 +10,12 @@ import uuid
 from io import BytesIO
 import base64
 from app.utils.httpRes import success,fail
-from fastapi import Request
-from app.core.redis import redis_manager
+from app.redis.redis import redis_manager
 from app.models.admin import AdminLoginParams
+
+from sqlalchemy.orm import Session
+from app.db.deps import get_db
+from app.db.models.user import User
 
 router = APIRouter()
 
@@ -82,7 +82,10 @@ async def get_captcha():
 
 # def create_item(user=Depends(login_auth_guard)):
 @router.post("/login", response_model=ResStructure)
-def create_item(body:AdminLoginParams):
+def create_item(
+        body:AdminLoginParams,
+        db: Session = Depends(get_db)
+):
     print('accessionToken==>>', "user")
     token = jwt.encode(
         {"a":"to_encode"},
@@ -92,6 +95,8 @@ def create_item(body:AdminLoginParams):
     try:
         res = jwt.decode(token, settings.JWT_SECRET, algorithms=["HS256"])
 
+        result = db.query(User).all()
+        print("sql===>>",result)
         return success({
             "code": 200,
             "data": res,

@@ -1,24 +1,25 @@
-from fastapi import FastAPI,Request,status
+from fastapi import FastAPI
 from app.routes import items,admin
 from app.core.exceptions import register_exception_handlers
 from app.core.middleware import logging_middleware,auth_middleware,timing_middleware,register_cors_middleware
-from app.core.loggerTracing import logger, register_trace_middleware
-from app.core.redis import redis_manager
+from app.core.loggerTracing import register_trace_middleware
+from app.redis.redis import redis_manager
 from contextlib import asynccontextmanager
 from app.core.config import settings
+from app.core.startup import startup
+from  app.core.shutdown import shutdown
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # 启动时执行
-    print("redis开始链接")
-    await redis_manager.connect()
-    print("Redis 已连接")
+    # 启动
+    await startup()
 
+    # yield 前 应用启动时执行
     yield
+    # yield 后 应用关闭时执行
 
-    # 关闭时执行
-    await redis_manager.close()
-    print("Redis 已关闭")
+    # 关闭
+    await shutdown()
 
 
 app = FastAPI(
@@ -56,6 +57,10 @@ def root(name: str):
     return {"message": "Welcome to FastAPI Demo " + name}
 
 
-'''
-12345
-'''
+# 导入所有模型
+from app.db.models.init import *
+from app.db.base import Base
+# print(Base.metadata.tables)
+from app.db.session import engine
+# 自动创建表
+Base.metadata.create_all(bind=engine)
