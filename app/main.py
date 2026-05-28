@@ -55,12 +55,3 @@ app.include_router(admin.router, prefix="/api/v1/admin", tags=["管理员"]) # t
 @app.get("/")
 def root(name: str):
     return {"message": "Welcome to FastAPI Demo " + name}
-
-
-# 导入所有模型
-from app.db.models.init import *
-from app.db.base import Base
-# print(Base.metadata.tables)
-from app.db.session import engine
-# 自动创建表
-Base.metadata.create_all(bind=engine)
