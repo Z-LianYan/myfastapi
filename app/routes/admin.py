@@ -96,10 +96,20 @@ def create_item(
         res = jwt.decode(token, settings.JWT_SECRET, algorithms=["HS256"])
 
         result = db.query(User).all()
-        print("sql===>>",result)
+        data = [
+            {
+                "id": item.id,
+                "username": item.username,
+                "password": item.password,
+                "created": item.created,
+            }
+            for item in result
+        ]
+
+        print("sql===>>",data)
         return success({
             "code": 200,
-            "data": res,
+            "data": data,
             "msg": "操作成功"
         })
     except Exception as e:

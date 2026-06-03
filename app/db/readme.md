@@ -1,10 +1,10 @@
- # 集成 sqlalchemy 
+ # 集成 sqlalchemy 不使用 alembic 的情况下
 
 
 ## ========== main.py 文件内容 ==========
 ```bash
 # 导入所有模型
-from app.db.models.init import *
+from app.db.models import *
 from app.db.base import Base
 # print(Base.metadata.tables)
 from app.db.session import engine
