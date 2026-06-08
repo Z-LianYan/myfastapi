@@ -77,7 +77,8 @@ async def get_captcha():
     return success({
         "data": {
             "captchaKey": captchaKey,
-            "captchaBase64": "data:image/svg+xml;base64," + img_base64,
+            # "captchaBase64": "data:image/svg+xml;base64," + img_base64,
+            "captchaBase64": "data:image/png;base64," + img_base64,
         },
         "msg": "ok"
     })
