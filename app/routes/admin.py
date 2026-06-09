@@ -86,11 +86,16 @@ async def get_captcha():
 
 # def create_item(user=Depends(login_auth_guard)):
 @router.post("/login", response_model=ResStructure)
-def create_item(
+async def login(
         body:AdminLoginParams,
         db: Session = Depends(get_db)
 ):
-    print('accessionToken==>>', "user")
+    code = await redis_manager.db0.get(body.captchaKey)
+    print('accessionToken==>>', "user", code,body.captchaCode)
+    if(code != body.captchaCode):
+        raise HTTPException(400, '验证码错误')
+
+
     token = jwt.encode(
         {"a":"to_encode"},
         settings.JWT_SECRET, # 密钥
@@ -101,10 +106,7 @@ def create_item(
 
         result = (db.query(User.username,func.count(User.username).label("count"))
                   .filter(
-                User.password == "1",
-                        User.id>=1,
-                        User.id.in_([8,9,10]),
-                        User.username.like("%Tom%")
+                        User.password == "1",
                     )
                   .group_by(User.username)
                   .having(User.username=="Tom")
