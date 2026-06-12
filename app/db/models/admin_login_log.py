@@ -2,11 +2,12 @@ from sqlalchemy import Column, Integer, String, DATETIME
 
 from app.db.base import Base
 
+from sqlalchemy.dialects.mysql import TINYINT,INTEGER
 
 class AdminLoginLog(Base):
     __tablename__ = "admin_login_log"
 
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    id = Column(INTEGER(unsigned=True), primary_key=True, index=True, autoincrement=True)
 
     admin_id = Column(Integer, nullable=True,comment="管理员id")
 

@@ -19,7 +19,7 @@ alembic init alembic
 
     配置数据库 
         alembic.ini 找到 sqlalchemy.url =
-        修改 sqlalchemy.url = mysql+pymysql://root:123456@127.0.0.1:3306/admin_tmp
+        修改 sqlalchemy.url = mysql+pymysql://root:123456@127.0.0.1:3306/admin_py_tpl
 
 ### 生成第一次迁移
 ```commandline

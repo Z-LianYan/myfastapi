@@ -1,12 +1,12 @@
 from sqlalchemy import Column, Integer, String, DATETIME
 
 from app.db.base import Base
-
+from sqlalchemy.dialects.mysql import TINYINT,INTEGER
 
 class AdminRole(Base):
     __tablename__ = "admin_role"
 
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    id = Column(INTEGER(unsigned=True), primary_key=True, index=True, autoincrement=True)
 
     role_name = Column(String(50), nullable=True)
 
@@ -16,7 +16,7 @@ class AdminRole(Base):
 
     remark = Column(String(255), nullable=True)
 
-    delete_time = Column(DATETIME(), nullable=False)
+    delete_time = Column(DATETIME(), nullable=False,comment="删除时间")
 
     status = Column(Integer,
             default=0,

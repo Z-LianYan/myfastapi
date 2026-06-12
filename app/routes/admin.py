@@ -13,12 +13,12 @@ from io import BytesIO
 import base64
 from app.utils.httpRes import success,fail
 from app.redis.redis import redis_manager
-from app.models.admin import AdminLoginParams
+from app.models.admin import AdminLoginParams, AdminAddParams
 
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 from app.db.deps import get_db
-from app.db.models.user import User
+from app.db.models.admin import Admin
 from app.core.guards.authLogin import login_auth_guard
 router = APIRouter()
 
@@ -104,32 +104,32 @@ async def login(
     try:
         res = jwt.decode(token, settings.JWT_SECRET, algorithms=["HS256"])
 
-        result = (db.query(User.username,func.count(User.username).label("count"))
-                  .filter(
-                        User.password == "1",
-                    )
-                  .group_by(User.username)
-                  .having(User.username=="Tom")
-                  .order_by(User.username.desc())
-                  .offset(0)
-                  .limit(10)
-                  .all())
-        data = [
-            {
-                "username": item.username,
-                "count": item.count
-            }
-            for item in result
-        ]
-
-        print("sql===>>",data)
+        # result = (db.query(User.username,func.count(User.username).label("count"))
+        #           .filter(
+        #                 User.password == "1",
+        #             )
+        #           .group_by(User.username)
+        #           .having(User.username=="Tom")
+        #           .order_by(User.username.desc())
+        #           .offset(0)
+        #           .limit(10)
+        #           .all())
+        # data = [
+        #     {
+        #         "username": item.username,
+        #         "count": item.count
+        #     }
+        #     for item in result
+        # ]
+        #
+        # print("sql===>>",data)
 
 
 
         return success({
             "code": 200,
             "data": {
-                "data": data,
+                "data": "data",
                 "token": token
             },
             "msg": "操作成功"
@@ -142,3 +142,28 @@ async def login(
         })
 
 
+
+
+@router.post("/add", response_model=ResStructure)
+async def login(
+        body:AdminAddParams,
+        db: Session = Depends(get_db)
+):
+    admin = Admin(
+        phone=body.phone,
+        password=body.password,
+        name=body.name,
+        status=body.status if body.status else 1,
+        role_id=body.role_id if body.role_id else None,
+        created_at=datetime.datetime.now(),
+        updated_at=datetime.datetime.now(),
+        avatar=body.avatar if body.avatar else None,
+    )
+    db.add(admin)
+    db.commit()
+    db.refresh(admin)
+
+    return success({
+        "data": admin,
+        "msg": "ok"
+    })

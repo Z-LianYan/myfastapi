@@ -2,12 +2,12 @@ from sqlalchemy import Column, Integer, String, DATETIME
 
 from app.db.base import Base
 
-from sqlalchemy.dialects.mysql import TINYINT
+from sqlalchemy.dialects.mysql import TINYINT,INTEGER
 
 class Admin(Base):
     __tablename__ = "admin"
 
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    id = Column(INTEGER(unsigned=True), primary_key=True, index=True, autoincrement=True)
 
     phone = Column(String(50), nullable=True)
 
@@ -30,5 +30,5 @@ class Admin(Base):
 
     delete_time = Column(DATETIME(), nullable=False)
 
-    avatar = Column(String, nullable=True, comment="头像")
+    avatar = Column(String(255), nullable=True, comment="头像")
 
