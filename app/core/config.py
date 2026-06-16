@@ -42,7 +42,7 @@ class Settings(BaseSettings):
     # ==========================================
     # JWT 配置
     # ==========================================
-    JWT_SECRET: str = "change_me"
+    JWT_SECRET: str = "julian!&&&kkkk"
     JWT_EXPIRE_MINUTES: int = 1440
 
     # ==========================================

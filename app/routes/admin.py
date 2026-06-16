@@ -149,6 +149,7 @@ async def login(
         body:AdminAddParams,
         db: Session = Depends(get_db)
 ):
+    print("======>>11",body.phone)
     admin = Admin(
         phone=body.phone,
         password=body.password,
@@ -158,12 +159,13 @@ async def login(
         created_at=datetime.datetime.now(),
         updated_at=datetime.datetime.now(),
         avatar=body.avatar if body.avatar else None,
+        # last_login_time=
     )
     db.add(admin)
     db.commit()
     db.refresh(admin)
-
+    #
     return success({
-        "data": admin,
+        "data": "ok",
         "msg": "ok"
     })

@@ -19,9 +19,9 @@ class AdminAddParams(BaseModel):
     phone: str = Field(..., description="手机号")
     password: str = Field(..., min_length=6, max_length=32, description="密码")
     name: str  = Field(..., min_length=2, max_length=32, description="姓名")
-    status: int = Field(..., max_digits=1, description="status状态必须是0，1")
+    status: int = Field(..., ge=0,le=1, description="status状态必须是0，1")
     avatar: str  = Field(..., description="头像")
-
+    role_id: str  = Field('', description="所属角色")
 
     @field_validator("phone")
     @classmethod
