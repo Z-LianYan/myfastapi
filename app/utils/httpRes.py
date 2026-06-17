@@ -8,6 +8,7 @@ class ResStructure(BaseModel):
     code: int
     data: Any | None = None
     msg: str | None = None
+    timestamp: str | None = None
 
 
 
@@ -36,4 +37,5 @@ def success(data: dict):
     if data.get("path"):
         res.update({"path": data.get("path")})
     res.update({"timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
+
     return res

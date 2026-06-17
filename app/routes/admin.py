@@ -21,6 +21,9 @@ from app.db.deps import get_db
 from app.db.models.admin import Admin
 from app.core.guards.authLogin import login_auth_guard
 router = APIRouter()
+from app.utils.password import hash_password,verify_password
+
+
 
 # @router.get("/getCaptcha",description="获取验证码返回图片",summary="获取验证码")
 # def getCaptcha():
@@ -144,28 +147,27 @@ async def login(
 
 
 
-@router.post("/add", response_model=ResStructure)
+@router.post("/add", response_model=ResStructure, response_model_exclude_none=True)
 async def login(
         body:AdminAddParams,
         db: Session = Depends(get_db)
 ):
-    print("======>>11",body.phone)
+    print("======>>11",body,body.password,hash_password(body.password))
     admin = Admin(
         phone=body.phone,
-        password=body.password,
+        password=hash_password(body.password),
         name=body.name,
         status=body.status if body.status else 1,
         role_id=body.role_id if body.role_id else None,
         created_at=datetime.datetime.now(),
         updated_at=datetime.datetime.now(),
         avatar=body.avatar if body.avatar else None,
-        # last_login_time=
     )
     db.add(admin)
     db.commit()
     db.refresh(admin)
-    #
+
     return success({
         "data": "ok",
-        "msg": "ok"
+        # "msg": "ok"
     })

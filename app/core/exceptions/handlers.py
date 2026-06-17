@@ -54,7 +54,10 @@ async def global_exception_handler(request: Request, exc: Exception):
     logger.error(f"全局异常: {str(exc)}")
     logger.error(traceback.format_exc())
     # 根据异常类型返回不同的错误码
-    if isinstance(exc, ValueError):
+    if isinstance(exc, HTTPException):
+        status_code = exc.status_code
+        message = exc.detail
+    elif isinstance(exc, ValueError):
         status_code = status.HTTP_400_BAD_REQUEST
         message = str(exc)
     elif isinstance(exc, RequestValidationError):
