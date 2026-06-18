@@ -5,7 +5,7 @@ from app.db.session import engine
 
 async def shutdown():
 
-    logger.info("系统开始关闭")
+    logger.info("<app.core.shutdown.py> 系统开始关闭")
 
     # ====================================
     # 关闭 Redis
@@ -15,11 +15,11 @@ async def shutdown():
 
         await redis_manager.close()
 
-        logger.info("Redis 已关闭")
+        logger.info("<app.core.shutdown.py> Redis已关闭")
 
     except Exception as e:
         logger.exception(
-            "Redis 关闭失败："
+            "<app.core.shutdown.py> Redis关闭失败："
             f"{e}"
         )
 
@@ -32,11 +32,11 @@ async def shutdown():
 
         engine.dispose() # 关闭连接池 释放所有连接
 
-        logger.info("MySQL 连接池已关闭")
+        logger.info("<app.core.shutdown.py> MySQL连接池已关闭")
 
     except Exception as e:
         logger.exception(
-            "关闭MYSQL 连接池失败："
+            "<app.core.shutdown.py> 关闭MYSQL连接池失败："
             f"{e}"
         )
 

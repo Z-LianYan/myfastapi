@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 # 验证异常处理（参数验证）
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     """处理参数验证异常"""
-    logger.warning(f"参数验证失败: {exc.errors()}")
+    logger.warning(f"<app.core.handlers.py> 参数验证失败: {exc.errors()}")
 
     # 提取第一个错误信息
     error_msg = "参数验证失败"
@@ -36,7 +36,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 # 处理 HTTP 异常
 async def http_exception_handler(request: Request, exc: HTTPException):
     """处理HTTP异常"""
-    logger.warning(f"HTTP异常: {exc.detail}")
+    logger.warning(f"<app.core.handlers.py> HTTP异常: {exc.detail}")
 
     return JSONResponse(
         status_code=exc.status_code,
@@ -51,7 +51,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 # 全局异常处理
 async def global_exception_handler(request: Request, exc: Exception):
     # 记录完整的错误堆栈
-    logger.error(f"全局异常: {str(exc)}")
+    logger.error(f"<app.core.handlers.py> 全局异常: {str(exc)}")
     logger.error(traceback.format_exc())
     # 根据异常类型返回不同的错误码
     if isinstance(exc, HTTPException):
@@ -83,4 +83,4 @@ def register_exception_handlers(app):
     app.add_exception_handler(HTTPException, http_exception_handler)
     app.add_exception_handler(Exception, global_exception_handler)
 
-    logger.info("异常处理器注册完成")
+    logger.info("<app.core.handlers.py> 异常处理器注册完成")

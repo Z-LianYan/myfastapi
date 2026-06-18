@@ -148,11 +148,11 @@ async def login(
 
 
 @router.post("/add", response_model=ResStructure, response_model_exclude_none=True)
-async def login(
+async def add(
         body:AdminAddParams,
         db: Session = Depends(get_db)
 ):
-    print("======>>11",body,body.password,hash_password(body.password))
+    print("======>>11",body.__dict__,body.password,hash_password(body.password))
     admin = Admin(
         phone=body.phone,
         password=hash_password(body.password),
@@ -164,10 +164,20 @@ async def login(
         avatar=body.avatar if body.avatar else None,
     )
     db.add(admin)
+    """
+        db.flush()  #获取ID
+        admin_id = admin.id  # 可以通过 执行 db.flush() 后提前获取 admin.id 无需  db.commit() 后 再执行db.refresh(admin)刷新才能获取admin.id
+    """
     db.commit()
-    db.refresh(admin)
+    db.refresh(admin) # 刷新 SQLAlchemy 对象才能获取 到admin.id
+
+    print("======>>222",verify_password(body.password, admin.password), admin.__dict__)
+
+    # raise HTTPException(400,'1111')
 
     return success({
-        "data": "ok",
-        # "msg": "ok"
+        "data": {
+            "id": admin.id
+        },
+        "msg": "ok"
     })
