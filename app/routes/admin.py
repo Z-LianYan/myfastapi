@@ -22,7 +22,7 @@ from app.db.models.admin import Admin
 from app.core.guards.authLogin import login_auth_guard
 router = APIRouter()
 from app.utils.password import hash_password,verify_password
-
+from app.utils.joseJwt import create_access_token,verify_access_token
 
 
 # @router.get("/getCaptcha",description="获取验证码返回图片",summary="获取验证码")
@@ -88,60 +88,45 @@ async def get_captcha():
 
 
 # def create_item(user=Depends(login_auth_guard)):
-@router.post("/login", response_model=ResStructure)
+@router.post("/login", response_model=ResStructure, response_model_exclude_none=True)
 async def login(
         body:AdminLoginParams,
         db: Session = Depends(get_db)
 ):
     code = await redis_manager.db0.get(body.captchaKey)
     print('accessionToken==>>', "user", code,body.captchaCode)
-    if(code != body.captchaCode):
-        raise HTTPException(400, '验证码错误')
+    # if(code != body.captchaCode):
+    #     raise HTTPException(400, '验证码错误')
 
 
-    token = jwt.encode(
-        {"a":"to_encode"},
-        settings.JWT_SECRET, # 密钥
-        algorithm="HS256" # 加密算法
-    )
+
+
+
     try:
-        res = jwt.decode(token, settings.JWT_SECRET, algorithms=["HS256"])
 
-        # result = (db.query(User.username,func.count(User.username).label("count"))
-        #           .filter(
-        #                 User.password == "1",
-        #             )
-        #           .group_by(User.username)
-        #           .having(User.username=="Tom")
-        #           .order_by(User.username.desc())
-        #           .offset(0)
-        #           .limit(10)
-        #           .all())
-        # data = [
-        #     {
-        #         "username": item.username,
-        #         "count": item.count
-        #     }
-        #     for item in result
-        # ]
-        #
-        # print("sql===>>",data)
 
+        result = db.query(Admin).filter(
+                    Admin.phone == body.phone,
+                ).offset(0).limit(10).one()
+
+        token = create_access_token({"id": result.id})
+        v_res = verify_password(body.password, result.password)
+        if not v_res:
+            raise HTTPException(400,'账户或密码错误')
 
 
         return success({
             "code": 200,
             "data": {
-                "data": "data",
-                "token": token
+                "data": "11",
+                "token": token,
             },
             "msg": "操作成功"
         })
     except Exception as e:
-        print("exception===>", e)
         return fail({
             "code": 400,
-            "msg": str(e)
+            "msg": e.detail
         })
 
 

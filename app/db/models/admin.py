@@ -32,3 +32,6 @@ class Admin(Base):
 
     avatar = Column(String(255), nullable=True, comment="头像")
 
+    model_config = {
+        "from_attributes": True
+    }

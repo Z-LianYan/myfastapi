@@ -2,6 +2,7 @@
 
 #### 查询
 ```
+     # 例1
     result = (db.query(User.username,func.count(User.username).label("count"))
           .filter(
         User.password == "1",
@@ -25,6 +26,17 @@
         ]
 
         print("sql===>>",data)
+        
+        
+        # 例2
+        admin = db.query(Admin).filter(
+            Admin.phone == phone
+        ).one()
+        特点：
+        查不到 → 抛异常
+        查到多条 → 抛异常
+        必须且仅有一条
+        
 
 ```
 
