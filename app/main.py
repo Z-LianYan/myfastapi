@@ -22,12 +22,15 @@ async def lifespan(app: FastAPI):
     await shutdown()
 
 
+# FastAPI 有两套文档 “Swagger UI”可以测试接口、“ReDoc” 不可以测试接口
 app = FastAPI(
-    title="FastAPI Demo Project",
-    docs_url="/docs" if settings.ENABLE_DOCS else None,
-    redoc_url=None,
-    version="1.0.0",
-    lifespan=lifespan
+    title="FastAPI Demo Project", # 接口文档标题
+    description="FastAPI Demo Project description", # Swagger 显示接口说明
+    docs_url="/docs" if settings.ENABLE_DOCS else None, # Swagger UI 地址 （接口文档地址） http://127.0.0.1:8000/docs
+    redoc_url=None, # ReDoc 文档 如果开启：redoc_url="/redoc"   (访问地址http://127.0.0.1:8000/redoc)
+    openapi_url="/openapi.json" if settings.ENABLE_DOCS else None,
+    version="1.0.0", # 接口版本
+    lifespan=lifespan # 应用生命周期
 )
 
 
