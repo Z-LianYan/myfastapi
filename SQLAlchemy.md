@@ -1,7 +1,7 @@
 # SQLAlchemy 的使用例子
 
 #### 查询
-```
+```bash
      # 例1
     result = (db.query(User.username,func.count(User.username).label("count"))
           .filter(
@@ -41,7 +41,7 @@
 ```
 
 ### 新增
-```
+```bash
     # 例1
     user = User(
         username="Tom",

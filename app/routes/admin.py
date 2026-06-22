@@ -1,4 +1,5 @@
 import datetime
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -105,20 +106,38 @@ async def login(
     try:
 
 
-        result = db.query(Admin).filter(
-                    Admin.phone == body.phone,
-                ).offset(0).limit(10).one()
+        result: Any | None = db.query(
+            Admin.id,
+            Admin.name,
+            Admin.phone,
+            Admin.password,
+            Admin.last_login_time,
+            Admin.status,
+            Admin.role_id,
+            Admin.avatar,
+        ).filter(
+            Admin.phone == body.phone,
+            Admin.delete_time.is_(None),
+        ).first()
 
-        token = create_access_token({"id": result.id})
-        v_res = verify_password(body.password, result.password)
-        if not v_res:
+        if not result:
+            raise HTTPException(400, '账户或密码错误')
+
+        if not verify_password(body.password, result.password):
             raise HTTPException(400,'账户或密码错误')
 
+        if result.status in [0]:
+            raise HTTPException(400,'该账号无权限登录！！！')
+
+        token = create_access_token({"id": result.id})
+
+        # result.popitem('password',None)
+        # print(result)
 
         return success({
             "code": 200,
             "data": {
-                "data": "11",
+                "data": dict(result._mapping),
                 "token": token,
             },
             "msg": "操作成功"
@@ -126,7 +145,7 @@ async def login(
     except Exception as e:
         return fail({
             "code": 400,
-            "msg": e.detail
+            "msg": e.detail,
         })
 
 
@@ -137,7 +156,6 @@ async def add(
         body:AdminAddParams,
         db: Session = Depends(get_db)
 ):
-    print("======>>11",body.__dict__,body.password,hash_password(body.password))
     admin = Admin(
         phone=body.phone,
         password=hash_password(body.password),

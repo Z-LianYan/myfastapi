@@ -46,6 +46,12 @@ alembic upgrade head
 ```
 
 ### 回滚
+
+
+```bash
+# 查看当前版本
+alembic current
+```
 ```bash
 # 回退一步
 alembic downgrade -1
