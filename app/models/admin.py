@@ -1,5 +1,21 @@
 from pydantic import BaseModel,Field,ConfigDict, field_validator
 from typing import Optional,List
+
+'''
+    必传字段
+        Field(..., ...) 里的 ... 表示必填。
+        如果给了默认值（包括 None），则变成可选字段。
+    字符串限制
+        min_length=1：最少 1 个字符
+        max_length=50：最多 50 个字符
+    数字限制
+        ge=0：greater or equal，大于等于 0
+        le=1000：less or equal，小于等于 1000
+    文档描述
+        description="xxx" 会显示在 Swagger UI 中
+'''
+
+
 class AdminLoginParams(BaseModel):
     phone: str = Field(..., description="手机号")
     password: str = Field(..., min_length=6, max_length=32, description="密码")

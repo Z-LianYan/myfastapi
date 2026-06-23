@@ -18,11 +18,11 @@ def login_auth_guard(
     accessToken: str = Header(None)
 ):
     print('login_auth_guard----token', accessToken)
-    try:
-        res = verify_access_token(accessToken)
-        return res
-    except Exception as e:
-        raise HTTPException(400, f"令牌无效{e}")
+    # try:
+    #     res = verify_access_token(accessToken)
+    #     return res
+    # except Exception as e:
+    #     raise HTTPException(400, f"令牌无效{e}")
 
 
 

@@ -135,13 +135,23 @@ def register_trace_middleware(app: FastAPI):
         token = trace_id_var.set(trace_id)
 
         try:
-            logger.info(f"<app.core.loggerTracing.py>  {request.method} {request.url.path} request start")
+
+            ip = (
+                    request.headers.get("X-Forwarded-For")
+                    or request.headers.get("X-Real-IP")
+                    or request.client.host
+            )
+
+            logger.info(
+                f"<app.core.loggerTracing.py>  {request.method} {request.url.path} ip={ip} request start"
+            )
 
             response = await call_next(request)
 
             logger.info(
-                f"<app.core.loggerTracing.py> {request.method} {request.url.path} request end "
-                f"status={response.status_code}"
+                f"<app.core.loggerTracing.py> {request.method} {request.url.path} ip={ip} request end "
+                f"status={response.status_code} "
+
             )
 
             # 返回给前端，方便排查

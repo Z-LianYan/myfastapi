@@ -2,11 +2,18 @@ from sqlalchemy import Column, Integer, String, DATETIME
 
 from app.db.base import Base
 from sqlalchemy.dialects.mysql import TINYINT,INTEGER
+from sqlalchemy.orm import Mapped, mapped_column
 
 class AdminRole(Base):
     __tablename__ = "admin_role"
 
-    id = Column(INTEGER(unsigned=True), primary_key=True, index=True, autoincrement=True)
+    # id = Column(INTEGER(unsigned=True), primary_key=True, index=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(
+        INTEGER(unsigned=True),
+        primary_key=True,
+        index=True,
+        autoincrement=True
+    )
 
     role_name = Column(String(50), nullable=True)
 

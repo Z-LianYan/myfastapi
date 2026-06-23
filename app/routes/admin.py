@@ -1,8 +1,9 @@
 import datetime
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException,Request
 
+from app.db.models import AdminRole
 from app.utils.httpRes import ResStructure
 from jose import jwt
 from app.core.config import settings
@@ -20,11 +21,12 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from app.db.deps import get_db
 from app.db.models.admin import Admin
+from app.db.models.admin_login_log import AdminLoginLog
 from app.core.guards.authLogin import login_auth_guard
 router = APIRouter()
 from app.utils.password import hash_password,verify_password
 from app.utils.joseJwt import create_access_token,verify_access_token
-
+from app.utils import get_client_info
 
 # @router.get("/getCaptcha",description="获取验证码返回图片",summary="获取验证码")
 # def getCaptcha():
@@ -88,24 +90,19 @@ async def get_captcha():
     })
 
 
-# def create_item(user=Depends(login_auth_guard)):
+
 @router.post("/login", response_model=ResStructure, response_model_exclude_none=True)
 async def login(
         body:AdminLoginParams,
-        db: Session = Depends(get_db)
+        db: Session = Depends(get_db),
+        request: Request = None
 ):
+    client_info = get_client_info(request)
     code = await redis_manager.db0.get(body.captchaKey)
     print('accessionToken==>>', "user", code,body.captchaCode)
     # if(code != body.captchaCode):
     #     raise HTTPException(400, '验证码错误')
-
-
-
-
-
     try:
-
-
         result: Any | None = db.query(
             Admin.id,
             Admin.name,
@@ -131,31 +128,61 @@ async def login(
 
         token = create_access_token({"id": result.id})
 
-        # result.popitem('password',None)
-        # print(result)
 
+        r_d = dict(result._mapping)
+        last_login_time = datetime.datetime.now()
+        r_d["last_login_time"] = str(last_login_time.strftime("%Y-%m-%d %H:%M:%S"))
+        del r_d['password']
+
+        db.query(Admin).filter(Admin.id == result.id).update({
+            Admin.last_login_time: last_login_time,
+        })
+        admin_login_log = AdminLoginLog(
+            admin_id = result.id,
+            ip = client_info['ip'],
+            login_time = datetime.datetime.now(),
+            user_agent = client_info['user_agent'],
+        )
+        db.add(admin_login_log)
+        db.commit()
         return success({
             "code": 200,
             "data": {
-                "data": dict(result._mapping),
-                "token": token,
-            },
-            "msg": "操作成功"
+                "admin":{
+                    **r_d
+                },
+                "accessToken": token,
+            }
         })
     except Exception as e:
         return fail({
             "code": 400,
-            "msg": e.detail,
+            "msg": str(e),
         })
-
 
 
 
 @router.post("/add", response_model=ResStructure, response_model_exclude_none=True)
 async def add(
         body:AdminAddParams,
-        db: Session = Depends(get_db)
+        db: Session = Depends(get_db),
+        admin_login=Depends(login_auth_guard)
 ):
+    exist = db.query(Admin).filter(
+        Admin.phone == body.phone,
+        Admin.delete_time.is_(None),
+    ).first()
+    print("exist====", exist)
+    if exist:
+        raise HTTPException(400, '账号已经存在')
+
+    if body.role_id:
+        role = db.query(AdminRole).filter(
+            AdminRole.id==body.role_id
+        ).first()
+        if not role:
+            raise HTTPException(400, '角色不存在！！！')
+
     admin = Admin(
         phone=body.phone,
         password=hash_password(body.password),
@@ -173,11 +200,6 @@ async def add(
     """
     db.commit()
     db.refresh(admin) # 刷新 SQLAlchemy 对象才能获取 到admin.id
-
-    print("======>>222",verify_password(body.password, admin.password), admin.__dict__)
-
-    # raise HTTPException(400,'1111')
-
     return success({
         "data": {
             "id": admin.id
