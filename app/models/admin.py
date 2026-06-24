@@ -28,7 +28,6 @@ class AdminLoginParams(BaseModel):
         v= v.replace(" ", "")
         if len(v) != 11:
             raise ValueError("手机号必须11位")
-
         return v
 
 class AdminAddParams(BaseModel):

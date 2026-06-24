@@ -1,8 +1,8 @@
 """init
 
-Revision ID: 8ce86e3154b6
+Revision ID: cb8c642a2ee8
 Revises: 
-Create Date: 2026-06-22 19:45:45.164401
+Create Date: 2026-06-24 15:39:58.852826
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision: str = '8ce86e3154b6'
+revision: str = 'cb8c642a2ee8'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -37,21 +37,20 @@ def upgrade() -> None:
     )
     op.create_table('admin_login_log',
     sa.Column('id', mysql.INTEGER(unsigned=True), autoincrement=True, nullable=False),
-    sa.Column('admin_id', sa.Integer(), nullable=True, comment='管理员id'),
+    sa.Column('admin_id', sa.Integer(), nullable=False, comment='管理员id'),
     sa.Column('ip', sa.String(length=30), nullable=True, comment='ip地址'),
     sa.Column('login_time', sa.DATETIME(), nullable=False, comment='登录时间'),
     sa.Column('user_agent', sa.String(length=255), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_admin_login_log_id'), 'admin_login_log', ['id'], unique=False)
     op.create_table('admin_role',
     sa.Column('id', mysql.INTEGER(unsigned=True), autoincrement=True, nullable=False),
-    sa.Column('role_name', sa.String(length=50), nullable=True),
+    sa.Column('role_name', sa.String(length=50), nullable=False, comment='角色名称'),
     sa.Column('created_at', sa.DATETIME(), nullable=False),
     sa.Column('updated_at', sa.DATETIME(), nullable=False),
-    sa.Column('remark', sa.String(length=255), nullable=True),
-    sa.Column('delete_time', sa.DATETIME(), nullable=False, comment='删除时间'),
-    sa.Column('status', sa.Integer(), nullable=False, comment='状态 0: 禁用 1:启用'),
+    sa.Column('remark', sa.String(length=255), nullable=True, comment='备注'),
+    sa.Column('delete_time', sa.DATETIME(), nullable=True),
+    sa.Column('status', mysql.TINYINT(), server_default='1', nullable=False, comment='状态 0: 禁用 1:启用'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_admin_role_id'), 'admin_role', ['id'], unique=False)
@@ -114,7 +113,6 @@ def downgrade() -> None:
     op.drop_table('app_versions')
     op.drop_index(op.f('ix_admin_role_id'), table_name='admin_role')
     op.drop_table('admin_role')
-    op.drop_index(op.f('ix_admin_login_log_id'), table_name='admin_login_log')
     op.drop_table('admin_login_log')
     op.drop_table('admin')
     # ### end Alembic commands ###

@@ -157,11 +157,11 @@ async def login(
     except Exception as e:
         return fail({
             "code": 400,
-            "msg": str(e),
+            "msg": getattr(e, "detail", str(e)),
         })
 
 
-
+# response_model 设定响应结构，response_model_exclude_none 为true 有传某个属性时才返回
 @router.post("/add", response_model=ResStructure, response_model_exclude_none=True)
 async def add(
         body:AdminAddParams,
