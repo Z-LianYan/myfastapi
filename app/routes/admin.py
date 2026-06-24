@@ -168,41 +168,100 @@ async def add(
         db: Session = Depends(get_db),
         admin_login=Depends(login_auth_guard)
 ):
-    exist = db.query(Admin).filter(
-        Admin.phone == body.phone,
-        Admin.delete_time.is_(None),
-    ).first()
-    print("exist====", exist)
-    if exist:
-        raise HTTPException(400, '账号已经存在')
-
-    if body.role_id:
-        role = db.query(AdminRole).filter(
-            AdminRole.id==body.role_id
+    try:
+        exist = db.query(Admin).filter(
+            Admin.phone == body.phone,
+            Admin.delete_time.is_(None),
         ).first()
-        if not role:
-            raise HTTPException(400, '角色不存在！！！')
+        if exist:
+            raise HTTPException(400, '账号已经存在')
 
-    admin = Admin(
-        phone=body.phone,
-        password=hash_password(body.password),
-        name=body.name,
-        status=body.status if body.status else 1,
-        role_id=body.role_id if body.role_id else None,
-        created_at=datetime.datetime.now(),
-        updated_at=datetime.datetime.now(),
-        avatar=body.avatar if body.avatar else None,
-    )
-    db.add(admin)
-    """
-        db.flush()  #获取ID
-        admin_id = admin.id  # 可以通过 执行 db.flush() 后提前获取 admin.id 无需  db.commit() 后 再执行db.refresh(admin)刷新才能获取admin.id
-    """
-    db.commit()
-    db.refresh(admin) # 刷新 SQLAlchemy 对象才能获取 到admin.id
-    return success({
-        "data": {
-            "id": admin.id
-        },
-        "msg": "ok"
-    })
+        if body.role_id:
+            role = db.query(AdminRole).filter(
+                AdminRole.id == body.role_id,
+                AdminRole.delete_time.is_(None),
+            ).first()
+            if not role:
+                raise HTTPException(400, '角色不存在！！！')
+
+        admin = Admin(
+            phone=body.phone,
+            password=hash_password(body.password),
+            name=body.name,
+            status=body.status if body.status else 1,
+            role_id=body.role_id if body.role_id else None,
+            created_at=datetime.datetime.now(),
+            updated_at=datetime.datetime.now(),
+            avatar=body.avatar if body.avatar else None,
+        )
+        db.add(admin)
+        """
+            db.flush()  #获取ID
+            admin_id = admin.id  # 可以通过 执行 db.flush() 后提前获取 admin.id 无需  db.commit() 后 再执行db.refresh(admin)刷新才能获取admin.id
+        """
+        db.commit()
+        db.refresh(admin)  # 刷新 SQLAlchemy 对象才能获取 到admin.id
+        return success({
+            "data": {
+                "id": admin.id
+            },
+            "msg": "ok"
+        })
+    except Exception as e:
+        return fail({
+            "code": 400,
+            "msg": getattr(e, "detail", str(e)),
+        })
+
+
+# response_model 设定响应结构，response_model_exclude_none 为true 有传某个属性时才返回
+@router.post("/edit", response_model=ResStructure, response_model_exclude_none=True)
+async def edit(
+        body:AdminAddParams,
+        db: Session = Depends(get_db),
+        admin_login=Depends(login_auth_guard)
+):
+    try:
+        exist = db.query(Admin).filter(
+            Admin.id == body.id,
+            Admin.delete_time.is_(None),
+        ).first()
+        if not exist:
+            raise HTTPException(400, '数据不存在')
+
+        if body.role_id:
+            role = db.query(AdminRole).filter(
+                AdminRole.id == body.role_id,
+                AdminRole.delete_time.is_(None),
+            ).first()
+            if not role:
+                raise HTTPException(400, '角色不存在！！！')
+
+        admin = Admin(
+            phone=body.phone,
+            password=hash_password(body.password),
+            name=body.name,
+            status=body.status if body.status else 1,
+            role_id=body.role_id if body.role_id else None,
+            created_at=datetime.datetime.now(),
+            updated_at=datetime.datetime.now(),
+            avatar=body.avatar if body.avatar else None,
+        )
+        db.add(admin)
+        db.query(Admin).filter(Admin.id == body.id).update({
+            Admin.phone: body.phone,
+            Admin.name: body.name,
+            Admin.status: body.status,
+            Admin.role_id: body.role_id,
+            Admin.updated_at: datetime.datetime.now(),
+            Admin.avatar: body.avatar,
+        })
+        db.commit()
+        return success({
+            "msg": "编辑成功"
+        })
+    except Exception as e:
+        return fail({
+            "code": 400,
+            "msg": getattr(e, "detail", str(e)),
+        })

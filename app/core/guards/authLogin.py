@@ -15,9 +15,9 @@ security = HTTPBearer()
 
 
 def login_auth_guard(
-    accesstoken: str = Header(None)
+    accessToken: str = Header(None)
 ):
-    print('login_auth_guard----token', accesstoken)
+    print('login_auth_guard----token', accessToken)
     # try:
     #     res = verify_access_token(accessToken)
     #     return res

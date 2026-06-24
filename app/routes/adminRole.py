@@ -114,23 +114,29 @@ async def edit(
         db: Session = Depends(get_db),
         admin_login=Depends(login_auth_guard)
 ):
-    exist = db.query(AdminRole).filter(
-        AdminRole.id == body.id,
-        AdminRole.delete_time.is_(None),
-    ).first()
-    if not exist:
-        raise HTTPException(400, '数据不存在')
+    try:
+        exist = db.query(AdminRole).filter(
+            AdminRole.id == body.id,
+            AdminRole.delete_time.is_(None),
+        ).first()
+        if not exist:
+            raise HTTPException(400, '数据不存在')
 
-    db.query(AdminRole).filter(AdminRole.id == body.id).update({
-        AdminRole.role_name: body.role_name,
-        AdminRole.remark: body.remark,
-        AdminRole.status: body.status,
-        AdminRole.updated_at: datetime.datetime.now(),
-    })
-    db.commit()
-    return success({
-        "msg": "修改成功"
-    })
+        db.query(AdminRole).filter(AdminRole.id == body.id).update({
+            AdminRole.role_name: body.role_name,
+            AdminRole.remark: body.remark,
+            AdminRole.status: body.status,
+            AdminRole.updated_at: datetime.datetime.now(),
+        })
+        db.commit()
+        return success({
+            "msg": "修改成功"
+        })
+    except Exception as e:
+        return fail({
+            "code": 400,
+            "msg": getattr(e, "detail", str(e)),
+        })
 
  # response_model 设定响应结构，response_model_exclude_none 为true 有传某个属性时才返回
 @router.post("/del", response_model=ResStructure, response_model_exclude_none=False)
@@ -139,15 +145,22 @@ async def edit(
         db: Session = Depends(get_db),
         admin_login=Depends(login_auth_guard)
 ):
-    exist = db.query(AdminRole).filter(
-        AdminRole.id == body.id,
-        AdminRole.delete_time.is_(None),
-    ).first()
-    if not exist:
-        raise HTTPException(400, '数据不存在')
+    try:
+        exist = db.query(AdminRole).filter(
+            AdminRole.id == body.id,
+            AdminRole.delete_time.is_(None),
+        ).first()
+        if not exist:
+            raise HTTPException(400, '数据不存在')
 
-    db.query(AdminRole).filter(AdminRole.id == body.id).delete()
-    db.commit()
-    return success({
-        "msg": "删除成功"
-    })
+        db.query(AdminRole).filter(AdminRole.id == body.id).delete()
+        db.commit()
+        return success({
+            "msg": "删除成功"
+        })
+    except Exception as e:
+        return fail({
+            "code": 400,
+            "msg": getattr(e, "detail", str(e)),
+        })
+
