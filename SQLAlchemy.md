@@ -5,7 +5,7 @@
      # 例1
     result = (db.query(User.username,func.count(User.username).label("count"))
           .filter(
-        User.password == "1",
+                User.password == "1",
                 User.id>=1,
                 User.id.in_([8,9,10]),
                 User.username.like("%Tom%")
