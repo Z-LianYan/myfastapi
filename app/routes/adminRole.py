@@ -38,7 +38,7 @@ async def get_list(
     db: Session = Depends(get_db),
     admin=Depends(login_auth_guard),
 ):
-
+    print("body=======",body)
     query = db.query(AdminRole)
 
     if body.keywords:

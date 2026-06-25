@@ -23,10 +23,10 @@ class StatusEnum(IntEnum):
 
 
 class GetAdminRoleList(BaseModel):
-    page: str = Field(..., description="分页页数")
-    limit: str = Field(..., description="每页获取数据条数")
+    page: int = Field(..., description="分页页数")
+    limit: int = Field(..., description="每页获取数据条数")
     keywords: str  = Field(..., description="关键字搜索: 角色名称")
-    status: str = Field(None, description="状态")
+    status: int | None = Field(None, description="状态")
 
 
 
