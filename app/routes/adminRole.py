@@ -36,6 +36,7 @@ from app.utils import get_client_info
 async def get_list(
     body: GetAdminRoleList,
     db: Session = Depends(get_db),
+    admin=Depends(login_auth_guard),
 ):
 
     query = db.query(AdminRole)
@@ -71,6 +72,7 @@ async def get_list(
 async def add(
     body: AddAdminRole,
     db: Session = Depends(get_db),
+    admin = Depends(login_auth_guard),
     request: Request = None
 ):
     try:
@@ -112,7 +114,7 @@ async def add(
 async def edit(
         body: EditAdminRole,
         db: Session = Depends(get_db),
-        admin_login=Depends(login_auth_guard)
+        admin=Depends(login_auth_guard)
 ):
     try:
         exist = db.query(AdminRole).filter(
@@ -140,7 +142,7 @@ async def edit(
 
  # response_model 设定响应结构，response_model_exclude_none 为true 有传某个属性时才返回
 @router.post("/del", response_model=ResStructure, response_model_exclude_none=False)
-async def edit(
+async def deleted(
         body: DelAdminRole,
         db: Session = Depends(get_db),
         admin_login=Depends(login_auth_guard)

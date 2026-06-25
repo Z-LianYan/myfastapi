@@ -15,7 +15,7 @@ from io import BytesIO
 import base64
 from app.utils.httpRes import success,fail
 from app.redis.redis import redis_manager
-from app.models.admin import AdminLoginParams, AdminAddParams
+from app.models.admin import AdminLoginParams, AddAdmin, EditAdmin, DelAdmin
 
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -152,7 +152,8 @@ async def login(
                     **r_d
                 },
                 "accessToken": token,
-            }
+            },
+            "msg": "登录成功"
         })
     except Exception as e:
         return fail({
@@ -164,9 +165,9 @@ async def login(
 # response_model 设定响应结构，response_model_exclude_none 为true 有传某个属性时才返回
 @router.post("/add", response_model=ResStructure, response_model_exclude_none=True)
 async def add(
-        body:AdminAddParams,
+        body: AddAdmin,
         db: Session = Depends(get_db),
-        admin_login=Depends(login_auth_guard)
+        admin=Depends(login_auth_guard)
 ):
     try:
         exist = db.query(Admin).filter(
@@ -217,9 +218,9 @@ async def add(
 # response_model 设定响应结构，response_model_exclude_none 为true 有传某个属性时才返回
 @router.post("/edit", response_model=ResStructure, response_model_exclude_none=True)
 async def edit(
-        body:AdminAddParams,
+        body: EditAdmin,
         db: Session = Depends(get_db),
-        admin_login=Depends(login_auth_guard)
+        admin = Depends(login_auth_guard)
 ):
     try:
         exist = db.query(Admin).filter(
@@ -237,17 +238,6 @@ async def edit(
             if not role:
                 raise HTTPException(400, '角色不存在！！！')
 
-        admin = Admin(
-            phone=body.phone,
-            password=hash_password(body.password),
-            name=body.name,
-            status=body.status if body.status else 1,
-            role_id=body.role_id if body.role_id else None,
-            created_at=datetime.datetime.now(),
-            updated_at=datetime.datetime.now(),
-            avatar=body.avatar if body.avatar else None,
-        )
-        db.add(admin)
         db.query(Admin).filter(Admin.id == body.id).update({
             Admin.phone: body.phone,
             Admin.name: body.name,
@@ -259,6 +249,73 @@ async def edit(
         db.commit()
         return success({
             "msg": "编辑成功"
+        })
+    except Exception as e:
+        return fail({
+            "code": 400,
+            "msg": getattr(e, "detail", str(e)),
+        })
+
+
+# response_model 设定响应结构，response_model_exclude_none 为true 有传某个属性时才返回
+@router.post("/del", response_model=ResStructure, response_model_exclude_none=True)
+async def deleted(
+        body: DelAdmin,
+        db: Session = Depends(get_db),
+        admin = Depends(login_auth_guard)
+):
+    try:
+        exist = db.query(Admin).filter(
+            Admin.id == body.id,
+            Admin.delete_time.is_(None),
+        ).first()
+        if not exist:
+            raise HTTPException(400, '数据不存在')
+
+        db.query(Admin).filter(Admin.id == body.id).update({
+            Admin.updated_at: datetime.datetime.now(),
+            Admin.delete_time: datetime.datetime.now(),
+        })
+        db.commit()
+        return success({
+            "msg": "删除成功"
+        })
+    except Exception as e:
+        return fail({
+            "code": 400,
+            "msg": getattr(e, "detail", str(e)),
+        })
+
+
+# response_model 设定响应结构，response_model_exclude_none 为true 有传某个属性时才返回
+@router.post("/getInfo", response_model=ResStructure, response_model_exclude_none=True)
+async def getInfo(
+        db: Session = Depends(get_db),
+        admin = Depends(login_auth_guard)
+):
+    try:
+        exist = db.query(
+            Admin.name,
+            Admin.id,
+            Admin.phone,
+            Admin.status,
+            Admin.updated_at,
+            Admin.delete_time,
+            Admin.created_at,
+            Admin.role_id,
+            Admin.avatar,
+        ).filter(
+            Admin.id == admin.id,
+            Admin.delete_time.is_(None),
+        ).first()
+        if not exist:
+            raise HTTPException(400, '数据不存在')
+
+        data = dict(exist._mapping)
+
+        return success({
+            "data": data,
+            "msg": "ok"
         })
     except Exception as e:
         return fail({

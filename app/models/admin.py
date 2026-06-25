@@ -1,5 +1,6 @@
 from pydantic import BaseModel,Field,ConfigDict, field_validator
 from typing import Optional,List
+from typing import Optional,List,Literal
 
 '''
     必传字段
@@ -30,13 +31,17 @@ class AdminLoginParams(BaseModel):
             raise ValueError("手机号必须11位")
         return v
 
-class AdminAddParams(BaseModel):
+class AddAdmin(BaseModel):
     phone: str = Field(..., description="手机号")
     password: str = Field(..., min_length=6, max_length=32, description="密码长度6-32位")
-    name: str  = Field(..., min_length=2, max_length=32, description="姓名密码长度2-32位")
-    status: int = Field(..., ge=0,le=1, description="status状态必须是0，1")
-    avatar: str  = Field(..., description="头像")
-    role_id: str  = Field('', description="所属角色")
+    name: str  = Field(..., min_length=2, max_length=32, description="密码长度2-32位")
+    # status: int = Field(..., ge=0,le=1, description="status状态必须是0，1")
+    status: Literal[0, 1] = Field(
+        ...,
+        description="状态：0禁用，1启用"
+    )
+    avatar: str  = Field("", description="头像")
+    role_id: int  = Field(..., description="所属角色")
 
     @field_validator("phone")
     @classmethod
@@ -44,5 +49,46 @@ class AdminAddParams(BaseModel):
         v= v.replace(" ", "")
         if len(v) != 11:
             raise ValueError("手机号必须11位")
+
+        return v
+
+class EditAdmin(BaseModel):
+    id: int = Field(..., description="数据id")
+    phone: str = Field(..., description="手机号")
+    # password: str = Field(..., min_length=6, max_length=32, description="密码长度6-32位")
+    name: str  = Field(..., description="姓名")
+    # status: int = Field(..., ge=0,le=1, description="status状态必须是0，1")
+    status: Literal[0, 1] = Field(
+        ...,
+        description="状态：0禁用，1启用"
+    )
+    avatar: str  = Field('', description="头像")
+    role_id: int  = Field(..., description="所属角色")
+
+    @field_validator("phone")
+    @classmethod
+    def validate_phone(cls, v):
+        v= v.replace(" ", "")
+        if len(v) != 11:
+            raise ValueError("手机号必须11位")
+        return v
+
+    @field_validator("name")
+    @classmethod
+    def validate_admin_name(cls, v):
+        v = v.replace(" ", "")
+        if not v:
+            raise ValueError("缺少管理员姓名")
+
+        return v
+
+class DelAdmin(BaseModel):
+    id: int = Field(...,description="管理员id")
+
+    @field_validator("id")
+    @classmethod
+    def validate_admin_id(cls, v):
+        if not v:
+            raise ValueError("缺少管理员id")
 
         return v
