@@ -26,6 +26,8 @@ def login_auth_guard(
 ):
     print('login_auth_guard----token', accessToken)
     try:
+        if not accessToken:
+            raise HTTPException(400, 'Access Token is required.')
         res = verify_access_token(accessToken)
         if not res or not res.get('id') or not res.get('exp'):
             raise HTTPException(400,"令牌无效！")

@@ -130,7 +130,7 @@ async def add(
 
 
  # response_model 设定响应结构，response_model_exclude_none 为true 有传某个属性时才返回
-@router.post("/edit", response_model=ResStructure, response_model_exclude_none=False)
+@router.post("/edit", description="编辑角色",summary="编辑角色", response_model=ResStructure, response_model_exclude_none=False)
 async def edit(
         body: EditAdminRole,
         db: Session = Depends(get_db),
@@ -161,7 +161,7 @@ async def edit(
         })
 
  # response_model 设定响应结构，response_model_exclude_none 为true 有传某个属性时才返回
-@router.post("/del", response_model=ResStructure, response_model_exclude_none=False)
+@router.post("/del", description="删除角色",summary="删除角色", response_model=ResStructure, response_model_exclude_none=False)
 async def deleted(
         body: DelAdminRole,
         db: Session = Depends(get_db),
@@ -175,7 +175,11 @@ async def deleted(
         if not exist:
             raise HTTPException(400, '数据不存在')
 
-        db.query(AdminRole).filter(AdminRole.id == body.id).delete()
+        # db.query(AdminRole).filter(AdminRole.id == body.id).delete()
+        db.query(AdminRole).filter(AdminRole.id == body.id).update({
+            AdminRole.delete_time: datetime.datetime.now(),
+            AdminRole.updated_at: datetime.datetime.now(),
+        })
         db.commit()
         return success({
             "msg": "删除成功"

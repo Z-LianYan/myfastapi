@@ -91,7 +91,7 @@ async def get_captcha():
 
 
 
-@router.post("/login", response_model=ResStructure, response_model_exclude_none=True)
+@router.post("/login", description="登录",summary="登录", response_model=ResStructure, response_model_exclude_none=True)
 async def login(
         body:AdminLoginParams,
         db: Session = Depends(get_db),
@@ -163,7 +163,7 @@ async def login(
 
 
 # response_model 设定响应结构，response_model_exclude_none 为true 有传某个属性时才返回
-@router.post("/add", response_model=ResStructure, response_model_exclude_none=True)
+@router.post("/add", description="添加管理员",summary="添加管理员", response_model=ResStructure, response_model_exclude_none=True)
 async def add(
         body: AddAdmin,
         db: Session = Depends(get_db),
@@ -216,7 +216,7 @@ async def add(
 
 
 # response_model 设定响应结构，response_model_exclude_none 为true 有传某个属性时才返回
-@router.post("/edit", response_model=ResStructure, response_model_exclude_none=True)
+@router.post("/edit", description="编辑管理员",summary="编辑管理员", response_model=ResStructure, response_model_exclude_none=True)
 async def edit(
         body: EditAdmin,
         db: Session = Depends(get_db),
@@ -258,7 +258,7 @@ async def edit(
 
 
 # response_model 设定响应结构，response_model_exclude_none 为true 有传某个属性时才返回
-@router.post("/del", response_model=ResStructure, response_model_exclude_none=True)
+@router.post("/del", description="删除管理员",summary="删除管理员", response_model=ResStructure, response_model_exclude_none=True)
 async def deleted(
         body: DelAdmin,
         db: Session = Depends(get_db),
@@ -288,7 +288,7 @@ async def deleted(
 
 
 # response_model 设定响应结构，response_model_exclude_none 为true 有传某个属性时才返回
-@router.post("/getInfo", response_model=ResStructure, response_model_exclude_none=True)
+@router.post("/getInfo", description="获取登录信息",summary="获取登录信息", response_model=ResStructure, response_model_exclude_none=True)
 async def getInfo(
         db: Session = Depends(get_db),
         admin = Depends(login_auth_guard)
