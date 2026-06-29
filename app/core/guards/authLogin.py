@@ -30,21 +30,21 @@ def login_auth_guard(
             raise HTTPException(400, 'Access Token is required.')
         res = verify_access_token(accessToken)
         if not res or not res.get('id') or not res.get('exp'):
-            raise HTTPException(400,"令牌无效！")
+            raise HTTPException(403,"令牌无效！")
 
         now = datetime.now().timestamp()
         if now > res.get('exp'):
-            raise HTTPException(400,"令牌已失效")
+            raise HTTPException(403,"令牌已失效")
 
         admin = db.query(Admin).filter(
             Admin.id==res.get('id'),
             Admin.delete_time.is_(None),
         ).first()
         if not admin:
-            raise HTTPException(400,"令牌无效！！")
+            raise HTTPException(403,"令牌无效！！")
         return admin
     except Exception as e:
-        raise HTTPException(getattr(e, "status_code", 400), f"{getattr(e, "detail", str(e))}")
+        raise HTTPException(getattr(e, "status_code", 403), f"{getattr(e, "detail", str(e))}")
 
 
 

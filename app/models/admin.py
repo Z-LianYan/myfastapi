@@ -31,6 +31,13 @@ class AdminLoginParams(BaseModel):
             raise ValueError("手机号必须11位")
         return v
 
+
+class GetAdminList(BaseModel):
+    page: int | None = Field(None, description="分页页数")
+    limit: int | None = Field(None, description="每页获取数据条数")
+    keywords: str | None  = Field('', description="关键字搜索: 管理员姓名、手机号")
+    status: str | None = Field(None, description="状态 0禁用 1启用")
+
 class AddAdmin(BaseModel):
     phone: str = Field(..., description="手机号")
     password: str = Field(..., min_length=6, max_length=32, description="密码长度6-32位")

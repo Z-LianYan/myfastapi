@@ -14,11 +14,9 @@ class ResStructure(BaseModel):
 
 
 def fail(data: dict):
-    res = {
+    res: dict[str, Any] = {
         "code": data.get("code", 400)
     }
-    if data.get("data"):
-        res['data'] = data.get("data")
     if data.get("msg"):
         res.update({"msg": data.get("msg")})
     if data.get("path"):
@@ -27,15 +25,14 @@ def fail(data: dict):
     res.update({"timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
     return res
 def success(data: dict):
-    res = {
+    res:dict[str, Any] = {
         "code": data.get("code", 200)
     }
-    if data.get("data"):
+    if data.get("data") or data.get("data")==[] or data.get("data")=={}:
         res['data'] = data.get("data")
     if data.get("msg"):
         res.update({"msg": data.get("msg")})
     if data.get("path"):
         res.update({"path": data.get("path")})
     res.update({"timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
-
     return res

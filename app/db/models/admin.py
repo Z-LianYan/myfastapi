@@ -32,14 +32,27 @@ class Admin(Base):
 
     updated_at = Column(DATETIME(), nullable=False)
 
-    role_id = Column(Integer, nullable=True, comment="角色id")
+    # role_id = Column(Integer, nullable=True, comment="角色id")
+
+    role_id: Mapped[int] = mapped_column(
+        Integer,
+        nullable=True,
+        comment="角色id"
+    )
 
     last_login_time = Column(DATETIME(), nullable=True)
 
-    status = Column(TINYINT(1),
-            default=1,
-            nullable=False,
-            comment="状态 0: 禁用 1:启用")
+    # status = Column(TINYINT(1),
+    #         default=1,
+    #         nullable=False,
+    #         comment="状态 0: 禁用 1:启用")
+
+    status: Mapped[int] = mapped_column(
+        TINYINT(1),
+        server_default="1",
+        nullable=False,
+        comment="状态 0: 禁用 1:启用"
+    )
 
     delete_time = Column(DATETIME(), nullable=True)
 

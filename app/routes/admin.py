@@ -15,7 +15,7 @@ from io import BytesIO
 import base64
 from app.utils.httpRes import success,fail
 from app.redis.redis import redis_manager
-from app.models.admin import AdminLoginParams, AddAdmin, EditAdmin, DelAdmin
+from app.models.admin import AdminLoginParams, AddAdmin, EditAdmin, DelAdmin, GetAdminList
 
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -99,9 +99,8 @@ async def login(
 ):
     client_info = get_client_info(request)
     code = await redis_manager.db0.get(body.captchaKey)
-    print('accessionToken==>>', "user", code,body.captchaCode)
-    # if(code != body.captchaCode):
-    #     raise HTTPException(400, '验证码错误')
+    if code != body.captchaCode:
+        raise HTTPException(400, '验证码错误')
     try:
         result: Any | None = db.query(
             Admin.id,
@@ -161,6 +160,67 @@ async def login(
             "msg": getattr(e, "detail", str(e)),
         })
 
+
+
+# response_model 设定响应结构，response_model_exclude_none 为true 有传某个属性时才返回
+@router.post("/getList",description="获取管理员列表",summary="获取管理员列表", response_model = ResStructure)
+async def get_list(
+    body: GetAdminList,
+    db: Session = Depends(get_db),
+    admin=Depends(login_auth_guard),
+):
+    print("body=======",body)
+    page = body.page or 1
+    limit = body.limit or 10
+    offset = (page - 1) * limit
+
+
+    query = db.query(Admin,AdminRole.role_name).outerjoin(AdminRole, Admin.role_id==AdminRole.id)
+    print("进来了吗===》〉body111", body.status, body,page,limit)
+
+    query = query.filter(Admin.delete_time.is_(None))
+    if body.keywords:
+        query = query.filter(func.concat(Admin.name, Admin.phone).like(
+            func.concat("%", body.keywords, "%")
+        ))
+    if body.status in [0,1]:
+        query = query.filter(Admin.status == body.status)
+
+    count = query.count()
+
+    query = query.order_by(Admin.id.desc())
+    query = query.offset(offset).limit(limit)
+    data = query.all()
+
+    obj = {
+        0: "禁用",
+        1: "启用"
+    }
+
+    result = [
+        {
+            "id": admin.id,
+            "avatar": admin.avatar,
+            "phone": admin.phone,
+            "name": admin.name,
+            "status": admin.status,
+            "status_name": obj.get(admin.status),
+            "role_id": admin.role_id,
+            "role_name": role_name,
+            "delete_time": admin.delete_time.strftime("%Y-%m-%d %H:%M:%S") if admin.delete_time else None,
+            "created_at": admin.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+            "updated_at": admin.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
+            "last_login_time": admin.last_login_time.strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        for admin, role_name in data
+    ]
+    return success({
+        "data": {
+            "rows": result,
+            "count": count,
+        },
+        "msg": "ok"
+    })
 
 # response_model 设定响应结构，response_model_exclude_none 为true 有传某个属性时才返回
 @router.post("/add", description="添加管理员",summary="添加管理员", response_model=ResStructure, response_model_exclude_none=True)

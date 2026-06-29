@@ -4,121 +4,119 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException,Request
 
 from app.db.models import AdminRole,Menu
-from app.db.models.admin_role import AdminRoleVO
 from app.utils.httpRes import ResStructure
-from jose import jwt
-from app.core.config import settings
-from captcha.image import ImageCaptcha
-import random
-import string
-import uuid
-from io import BytesIO
-import base64
 from app.utils.httpRes import success,fail
-from app.redis.redis import redis_manager
 from app.models.menu import GetMeneList, AddMenu, EditMenu, DelMenu
 
 
-from sqlalchemy import func
+from sqlalchemy import func,or_,and_,text
 from sqlalchemy.orm import Session
 from app.db.deps import get_db
-from app.db.models.admin import Admin
-from app.db.models.admin_login_log import AdminLoginLog
 from app.core.guards.authLogin import login_auth_guard
 router = APIRouter()
-from app.utils.password import hash_password,verify_password
-from app.utils.joseJwt import create_access_token,verify_access_token
-from app.utils import get_client_info
+import json
 
 
 def handle_menu(rows):
     lists = []
     for item in rows:
-        if item.get("children"):
+        if not item.get("children"):
             item["children"] = []
         for it in rows:
             if item.get("id") == it.get("pid"):
                 item["children"].append(it)
 
     for item in rows:
-        if item.pid==0:
+        if item.get("pid")==0:
             lists.append(item)
     return lists
+
+def filter_menu(rows, keywords=None):
+    menus = []
+    for item in rows:
+        if keywords:
+            if item.get("meta").get("title") .find(keywords) != -1:
+                menus.append(item)
+            elif  item.get("children") and len(item.get("children")):
+                item['children'] = filter_menu(item['children'], keywords)
+                if item.get("children") and len(item.get("children")):
+                    menus.append(item)
+        else:
+            menus.append(item)
+            item['children'] = filter_menu(item.get("children") or [], keywords)
+
+    # sorted()：返回一个新的排序结果，不修改原数据。
+    # list.sort()：原地排序，会修改原列表。=
+    menus.sort(key=lambda x: x.get("sort") or 0)
+    return menus
+
 
 # response_model 设定响应结构，response_model_exclude_none 为true 有传某个属性时才返回
 @router.post("/getList",description="获取菜单列表",summary="获取菜单列表", response_model = ResStructure)
 async def get_list(
     body: GetMeneList,
     db: Session = Depends(get_db),
-    # admin=Depends(login_auth_guard),
+    admin=Depends(login_auth_guard),
 ):
-    print("body=======",body)
-    page = body.page or 1
-    limit = body.limit or 10
-    offset = (page - 1) * limit
+    try:
+        page = body.page or 1
+        limit = body.limit or 10
+        offset = (page - 1) * limit
 
+        query = db.query(Menu)
+        query = query.filter(Menu.delete_time.is_(None))
 
-    query = db.query(Menu)
-    print("进来了吗===》〉body111", body.status, body,page,limit)
+        if body.status in [0, 1]:
+            query = query.filter(Menu.status == body.status)
 
+        query = query.order_by(Menu.id.desc())
+        data = query.all()
 
-    # if body.keywords:
-    #     query = query.filter(Menu.role_name.like(f"%{body.keywords}%"))
-    if body.status:
-        query = query.filter(Menu.status == body.status)
-
-    query = query.order_by(Menu.id.desc())
-    data = query.all()
-
-    obj = {
-        0: "禁用",
-        1: "启用"
-    }
-
-    result = [
-        {
-            "id": item.id,
-            "path": item.path,
-            "name": item.name,
-            "component": item.component,
-            "redirect": item.redirect,
-            "meta": item.meta,
-            "pid": item.pid,
-            "role_ids": item.role_ids.split(",") if item.role_ids else [],
-            "admin_ids": item.admin_ids.split(",") if item.admin_ids else [],
-            "sort": item.sort,
-            "status": item.status,
-            "status_name": obj.get(item.status),
-            "delete_time": item.delete_time.strftime("%Y-%m-%d %H:%M:%S") if item.delete_time else None,
-            "created_at": item.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-            "updated_at": item.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
+        obj = {
+            0: "禁用",
+            1: "启用"
         }
-        for item in data
-    ]
+        # data 是  <class 'list'> 才能使用这个方式处理放回前端
+        result = [
+            {
+                "id": item.id,
+                "path": item.path,
+                "name": item.name,
+                "component": item.component,
+                "redirect": item.redirect,
+                "meta": item.meta,
+                "pid": item.pid,
+                "role_ids": item.role_ids.split(",") if item.role_ids else [],
+                "admin_ids": item.admin_ids.split(",") if item.admin_ids else [],
+                "sort": item.sort,
+                "status": item.status,
+                "status_name": obj.get(item.status),
+                "delete_time": item.delete_time.strftime("%Y-%m-%d %H:%M:%S") if item.delete_time else None,
+                "created_at": item.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+                "updated_at": item.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
+            }
+            for item in data
+        ]
 
+        menus = handle_menu(result)
+        # if body.keywords:
+        menus = filter_menu(menus, body.keywords)
 
+        menus = menus[offset : offset + limit]
+        count = len(menus)
 
-
-    # result = handle_menu(result)
-
-
-    # print("data=======",data)
-    # ls = []
-    # for item in result:
-    #     print(type(item),item['path'])
-    #
-    # s = "2,3,4"
-    # print('s--------->',s,s.split(","))
-
-
-    return success({
-        "data": {
-            "rows": result,
-            # "count": count,
-            # "ls": ls
-        },
-        "msg": "ok"
-    })
+        return success({
+            "data": {
+                "rows": menus,
+                "count": count
+            },
+            "msg": "ok"
+        })
+    except Exception as e:
+        return fail({
+            "code": 400,
+            "msg": getattr(e, "detail", str(e)),
+        })
 
 
  # response_model 设定响应结构，response_model_exclude_none 为true 有传某个属性时才返回
@@ -239,4 +237,101 @@ async def deleted(
             "code": 400,
             "msg": getattr(e, "detail", str(e)),
         })
+
+
+
+# response_model 设定响应结构，response_model_exclude_none 为true 有传某个属性时才返回
+@router.post("/routes", description="获取管理员授权菜单",summary="获取管理员授权菜单", response_model=ResStructure, response_model_exclude_none=False)
+async def routes(
+        db: Session = Depends(get_db),
+        admin=Depends(login_auth_guard)
+):
+    try:
+        conditions = [
+            and_(
+                Menu.admin_ids.is_(None),
+                Menu.role_ids.is_(None),
+            )
+        ]
+
+        if admin.role_id is not None:
+            conditions.append(
+                func.find_in_set(admin.role_id, Menu.role_ids) > 0
+            )
+
+        conditions.append(
+            func.find_in_set(admin.id, Menu.admin_ids) > 0
+        )
+
+        data = db.query(Menu).filter(
+            or_(*conditions),
+            Menu.delete_time.is_(None),
+        ).all()
+
+        # sql = text("""
+        #     SELECT *
+        #     FROM menu
+        #     WHERE (
+        #         FIND_IN_SET(:role_id, role_ids)
+        #         OR FIND_IN_SET(:admin_id, admin_ids)
+        #         OR (role_ids IS NULL AND admin_ids IS NULL)
+        #     )
+        #     AND delete_time IS NULL
+        # """)
+        #
+        # data = db.execute(
+        #     sql,
+        #     {
+        #         "role_id": admin.role_id,
+        #         "admin_id": admin.id,
+        #     }
+        # ).mappings().all()
+        #
+        # print("data====>>111",type(data))
+        obj = {
+            0: "禁用",
+            1: "启用"
+        }
+
+        """
+            json.loads(item.meta)
+            json.dumps({"a": 1})
+        """
+        result = [
+            {
+                "id": item.id,
+                "path": item.path,
+                "name": item.name,
+                "component": item.component,
+                "redirect": item.redirect,
+                "meta":  item.meta,
+                # "meta":  json.loads(item.meta) if item.meta else {},
+                "pid": item.pid,
+                "role_ids": item.role_ids.split(",") if item.role_ids else [],
+                "admin_ids": item.admin_ids.split(",") if item.admin_ids else [],
+                "sort": item.sort,
+                "status": item.status,
+                "status_name": obj.get(item.status),
+                "delete_time": item.delete_time.strftime("%Y-%m-%d %H:%M:%S") if item.delete_time else None,
+                "created_at": item.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+                "updated_at": item.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
+            }
+            for item in data
+        ]
+
+        result = handle_menu(result)
+
+        menus = filter_menu(result)
+
+        return success({
+            "data": menus,
+            "msg": "ok"
+        })
+    except Exception as e:
+        return fail({
+            "code": 400,
+            "msg": getattr(e, "detail", str(e)),
+        })
+
+
 

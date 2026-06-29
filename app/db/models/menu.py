@@ -50,9 +50,9 @@ class Menu(Base):
         comment="状态 0: 禁用 1:启用"
     )
 
-    role_ids = Column(String(255), nullable=False, comment="角色权限")
+    role_ids = Column(String(255), nullable=True, comment="角色权限")
 
-    admin_ids = Column(String(255), nullable=False, comment="单个管理员权限")
+    admin_ids = Column(String(255), nullable=True, comment="单个管理员权限")
 
 
     sort = Column(Integer, nullable=False)

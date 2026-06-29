@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routes import items,admin,adminRole,menu
+from app.routes import items,admin,adminRole,menu,common
 from app.core.exceptions import register_exception_handlers
 from app.core.middleware import logging_middleware,auth_middleware,timing_middleware,register_cors_middleware
 from app.core.loggerTracing import register_trace_middleware
@@ -56,6 +56,7 @@ app.include_router(items.router, prefix="/api", tags=["项目"]) # tags 自动�
 app.include_router(admin.router, prefix="/api/v1/admin", tags=["管理员"]) # tags 自动生成的 API 文档里分类显示
 app.include_router(adminRole.router, prefix="/api/v1/adminRole", tags=["管理员角色"]) # tags 自动生成的 API 文档里分类显示
 app.include_router(menu.router, prefix="/api/v1/menu", tags=["路由菜单管理"]) # tags 自动生成的 API 文档里分类显示
+app.include_router(common.router, prefix="/api/v1/common", tags=["公共"]) # tags 自动生成的 API 文档里分类显示
 
 @app.get("/")
 def root(name: str):
