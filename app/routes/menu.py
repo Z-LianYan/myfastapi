@@ -9,7 +9,7 @@ from app.utils.httpRes import success,fail
 from app.models.menu import GetMeneList, AddMenu, EditMenu, DelMenu
 
 
-from sqlalchemy import func,or_,and_,text
+from sqlalchemy import func, or_, and_, text, select
 from sqlalchemy.orm import Session
 from app.db.deps import get_db
 from app.core.guards.authLogin import login_auth_guard
@@ -262,12 +262,15 @@ async def routes(
         conditions.append(
             func.find_in_set(admin.id, Menu.admin_ids) > 0
         )
+        stmt = select(Menu).where(or_(*conditions),Menu.delete_time.is_(None))
 
-        data = db.query(Menu).filter(
-            or_(*conditions),
-            Menu.delete_time.is_(None),
-        ).all()
+        # data = db.query(Menu).filter(
+        #     or_(*conditions),
+        #     Menu.delete_time.is_(None),
+        # ).all()
 
+        # data = db.execute(stmt).mappings().all()
+        data = db.execute(stmt).scalars().all()
         # sql = text("""
         #     SELECT *
         #     FROM menu

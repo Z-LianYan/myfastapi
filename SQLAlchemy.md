@@ -1,3 +1,144 @@
+# SQLAlchemy
+
+
+## 这是 SQLAlchemy 最容易混淆的地方。返回什么类型，不是由 select 或 query 决定，而是由你查询的内容决定。
+### 可以记住一个规则：
+    查询模型（Model）→ 返回对象（Object）
+    查询字段（Column）→ 返回元组（Tuple）或映射（Mapping）
+
+# 一、query() 
+## 1. 查询整个模型 → 返回对象
+```bash
+    data = db.query(Admin).all()
+    #返回
+    [
+        <Admin object>,
+        <Admin object>,
+    ]
+    #可以
+    for item in data:
+      print(item.name)
+```
+## 2.查询多个字段 → 返回元组
+```bash
+    data = db.query(
+        Admin.id,
+        Admin.name
+    ).all()
+    #返回
+    [
+        (1, "张三"),
+        (2, "李四"),
+    ]
+    #访问
+    row[0]
+    row[1]
+    #返回客户端
+    result = [
+        dict(row._mapping)
+        for row in data
+    ]
+```
+## 3.查询模型 + 字段
+```bash
+    data = db.query(
+        Admin,
+        AdminRole.role_name
+    ).all()
+    #返回
+    [
+        (<Admin object>, "财务"),
+        (<Admin object>, "管理员"),
+    ]
+    #可以
+    for admin, role_name in data
+      print(admin.name,role_name)
+
+```
+# 二、select()
+① 查询整个模型
+```bash
+  conditions = [Admin.delete_time.is_(None)]
+  stmt = select(Admin).where(*conditions)
+  
+  data = db.execute(stmt).scalars().all()
+  #返回：
+  [
+    {
+        "Admin": <Admin object>
+    }
+  ]
+  #可以
+  for item in data
+     print(item.name)
+```
+② 查询多个字段
+```bash
+    stmt = select(
+        Admin.id,
+        Admin.name
+    )
+    data = db.execute(stmt).all()
+    #返回原组
+    [
+        (1, "张三"),
+        (2, "李四"),
+    ]
+    # 返回的是原组可以使用 mappings() 直接得到 [{"id": 1,"name": "张三"}]
+    data = db.execute(stmt).mappings().all()
+    #返回
+    [
+        {
+            "id": 1,
+            "name": "张三"
+        },
+        {
+            "id": 2,
+            "name": "李四"
+        }
+    ]
+```
+③ 查询模型 + 字段
+```bash
+    stmt = select(
+        Admin,
+        AdminRole.role_name
+    )
+    data = db.execute(stmt).all()
+    #返回
+    [
+        (<Admin>, "财务"),
+    ]
+    # mappings()
+    data = db.execute(stmt).mappings().all()
+    #返回
+    [
+        {
+            "Admin": <Admin>,
+            "role_name": "财务"
+        }
+    ]
+```
+
+
+# 总结
+写法	                                        返回类型
+db.query(Admin)	                            Admin 对象
+db.query(Admin.id, Admin.name)	            元组
+db.query(Admin, AdminRole.role_name)        (Admin对象, 字段)
+select(Admin) + scalars()	                 Admin 对象
+select(Admin) + all()	                     (<Admin>,)
+select(Admin) + mappings()	                 {"Admin": <Admin>}
+select(Admin.id, Admin.name) + all()	     元组
+select(Admin.id, Admin.name) + mappings()	 字典
+
+
+
+
+
+
+
+
 # SQLAlchemy 的使用例子
 
 #### 查询

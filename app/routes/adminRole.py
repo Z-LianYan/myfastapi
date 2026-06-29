@@ -44,8 +44,17 @@ async def get_list(
     offset = (page - 1) * limit
 
 
-    query = db.query(AdminRole)
+    query = db.query(
+        AdminRole.id,
+        AdminRole.role_name,
+        AdminRole.status,
+        AdminRole.remark,
+        AdminRole.delete_time,
+        AdminRole.created_at,
+        AdminRole.updated_at
+    )
     print("进来了吗===》〉body111", body.status, body,page,limit)
+    query = query.filter(AdminRole.delete_time.is_(None))
 
 
     if body.keywords:
@@ -64,18 +73,18 @@ async def get_list(
         1: "启用"
     }
 
-
     result = [
-        {
-            "id": item.id,
-            "role_name": item.role_name,
-            "status": item.status,
-            "status_name": obj.get(item.status),
-            "remark": item.remark,
-            "delete_time": item.delete_time.strftime("%Y-%m-%d %H:%M:%S") if item.delete_time else None,
-            "created_at": item.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-            "updated_at": item.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
-        }
+        # {
+        #     "id": item.id,
+        #     "role_name": item.role_name,
+        #     "status": item.status,
+        #     "status_name": obj.get(item.status),
+        #     "remark": item.remark,
+        #     "delete_time": item.delete_time.strftime("%Y-%m-%d %H:%M:%S") if item.delete_time else None,
+        #     "created_at": item.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+        #     "updated_at": item.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
+        # }
+        dict(item._mapping)
         for item in data
     ]
     return success({
