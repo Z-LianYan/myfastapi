@@ -4,6 +4,10 @@
 ```bash
   uv python list # 查看可安装的版本/查看已安装版本
   uv python install 3.11.15 # 安装指定版本
+  uv python uninstall 3.11.15 # 删除某个版本
+  
+  # 查看python版本号，项目根目录执行
+  uv run python -V # 每个虚拟环境下（.venv）都有不一样的版本号
   
   # 项目中切换 Python 版本
   ① 修改或创建 .python-version
@@ -18,11 +22,7 @@
     python -V
    完成了这3步即可更换版本成功
    
-  # 删除某个版本
-    uv python uninstall 3.11.15
-    
-  # 查看python版本号，项目根目录执行
-    uv run python -V # 每个虚拟环境下（.venv）都有不一样的版本号
+  
 ```
 
 
