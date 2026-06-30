@@ -227,7 +227,7 @@ async def get_list(
 async def add(
         body: AddAdmin,
         db: Session = Depends(get_db),
-        admin=Depends(login_auth_guard)
+        # admin=Depends(login_auth_guard)
 ):
     try:
         exist = db.query(Admin).filter(

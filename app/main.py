@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routes import items,admin,adminRole,menu,common
+from app.routes import admin,adminRole,menu,common
 from app.core.exceptions import register_exception_handlers
 from app.core.middleware import logging_middleware,auth_middleware,timing_middleware,register_cors_middleware
 from app.core.loggerTracing import register_trace_middleware
@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager
 from app.core.config import settings
 from app.core.startup import startup
 from  app.core.shutdown import shutdown
+from fastapi.staticfiles import StaticFiles
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -52,12 +53,17 @@ register_trace_middleware(app) # 链式追踪日记
 
 
 # 注册路由
-app.include_router(items.router, prefix="/api", tags=["项目"]) # tags 自动生成的 API 文档里分类显示
 app.include_router(admin.router, prefix="/api/v1/admin", tags=["管理员"]) # tags 自动生成的 API 文档里分类显示
 app.include_router(adminRole.router, prefix="/api/v1/adminRole", tags=["管理员角色"]) # tags 自动生成的 API 文档里分类显示
 app.include_router(menu.router, prefix="/api/v1/menu", tags=["路由菜单管理"]) # tags 自动生成的 API 文档里分类显示
 app.include_router(common.router, prefix="/api/v1/common", tags=["公共"]) # tags 自动生成的 API 文档里分类显示
 
-@app.get("/")
-def root(name: str):
-    return {"message": "Welcome to FastAPI Demo " + name}
+app.mount(
+    "/", # 决定访问路径
+    StaticFiles(directory="web/dist", html=True), # 指定挂载什么应用（这里是静态文件服务）（html=True 访问 / 时返回 index.html，访问不存在的目录时，会尝试返回对应的 index.html）
+    name="vue" # 路由名称，仅供程序内部引用
+)
+
+# @app.get("/")
+# def root(name: str):
+#     return {"message": "Welcome to FastAPI Demo " + name}

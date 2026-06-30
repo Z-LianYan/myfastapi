@@ -2,3 +2,5 @@
 # Logs
 logs
 *.log
+.venv/
+web/dist/*

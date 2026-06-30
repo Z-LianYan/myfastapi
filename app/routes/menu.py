@@ -262,7 +262,7 @@ async def routes(
         conditions.append(
             func.find_in_set(admin.id, Menu.admin_ids) > 0
         )
-        stmt = select(Menu).where(or_(*conditions),Menu.delete_time.is_(None))
+        stmt = select(Menu).where(or_(*conditions),Menu.delete_time.is_(None),Menu.status == 1)
 
         # data = db.query(Menu).filter(
         #     or_(*conditions),

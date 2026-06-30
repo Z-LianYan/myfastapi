@@ -51,6 +51,14 @@ class Settings(BaseSettings):
     ENABLE_DOCS: bool = False
 
     # ==========================================
+    # 七牛云配置
+    # ==========================================
+    QINIU_BUCKET: str = "" # 要上传的空间
+    QINIU_STATIC_HOST: str = "" # 资源空间访问域名
+    QINIU_ACCESS_KEY: str = "2J175TblvDTRqVcw_Uajw0VjyxTpfxeEz6vljRTZ"
+    QINIU_SECRET_KEY: str = "-PQ0CMsNU-z24b4SMZ_6xjcC__rz_QGYpe4khV3K"
+
+    # ==========================================
     # 自动读取对应环境文件，会覆盖以上存在的变量
     # 例如：
     # ENV=dev  -> .env.dev

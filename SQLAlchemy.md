@@ -84,7 +84,7 @@
         (1, "张三"),
         (2, "李四"),
     ]
-    # 返回的是原组可以使用 mappings() 直接得到 [{"id": 1,"name": "张三"}]
+    # 返回的是元组可以使用 mappings() 直接得到 [{"id": 1,"name": "张三"}]
     data = db.execute(stmt).mappings().all()
     #返回
     [

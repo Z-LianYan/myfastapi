@@ -1,6 +1,6 @@
 ## 1.启动命令(根目录启动，main.py所在目录启动,也可以直接运行python run.py就能启动)：
 ```commandline
-uvicorn app.main:app --reload
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ## 2.忽略已安装的包：
