@@ -44,7 +44,7 @@ def login_auth_guard(
             raise HTTPException(403,"令牌无效！！")
         return admin
     except Exception as e:
-        raise HTTPException(getattr(e, "status_code", 403), f"{getattr(e, "detail", str(e))}")
+        raise HTTPException(getattr(e, "status_code", 403), getattr(e, "detail", str(e)))
 
 
 
