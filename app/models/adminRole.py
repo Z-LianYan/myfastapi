@@ -58,7 +58,7 @@ class EditAdminRole(BaseModel):
 
     @field_validator("id")
     @classmethod
-    def validate_role_name(cls, v):
+    def validate_id(cls, v):
         if not v:
             raise ValueError("id不能为空")
         return v

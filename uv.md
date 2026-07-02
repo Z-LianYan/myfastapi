@@ -26,6 +26,95 @@
 ```
 
 
+## 启动项目
+```bash
+    # 1. 激活虚拟环境：
+        # 激活虚拟环境  
+        source .venv/bin/activate 
+        #退出激活虚拟环境  
+        deactivate
+        # 启动命令
+        uvicorn app.main:app \
+          --host 127.0.0.1 \
+          --port 8000 \
+          --workers 2 # 进程数
+          
+        # 查看uvicorn 是否存在
+          # 法 <1> 
+          which uvicorn # 输出类似 /www/wwwroot/myfastapi/.venv/bin/uvicorn
+          # 法 <2> 
+            uv pip show uvicorn 或者 uv pip list | grep uvicorn
+            # 如果没有安装就安装
+            uv add uvicorn 或者 uv pip install uvicorn
+        
+    # 2 直接使用完整路径
+    /www/wwwroot/myfastapi/.venv/bin/uvicorn \
+        app.main:app \
+        --host 127.0.0.1 \
+        --port 8000 \
+        --workers 4 # 进程数 一般设置 CPU核心 × 2 + 1
+    # 3 使用 uv 启动
+      uv run uvicorn app.main:app --reload  # 开发环境 （--reload  自动重载）
+    
+    生产部署 
+    # Gunicorn + Uvicorn（Linux 推荐） 新 fastapi 项目建议 直接使用 Uvicorn 多 Worker 简单
+      #Gunicorn它主要负责
+        #创建多个 Worker
+        #Worker 崩溃后自动重启
+        #优雅重启（不停机更新）
+        #信号管理（SIGTERM、SIGUSR2 等）
+        #Worker 数量控制
+        #超时管理
+      #Gunicorn 还有价值吗
+        #Worker 超时控制。
+        #更丰富的信号处理（优雅重启、平滑升级等）。
+        #更多成熟的配置项。
+        #很多老公司的运维体系已经围绕 Gunicorn 建立。
+    # 安装gunicorn 
+    pip install gunicorn
+    #启动
+    gunicorn app.main:app \
+        -k uvicorn.workers.UvicornWorker \
+        -w 4 \
+        -b 127.0.0.1:8000
+        
+        #说明：
+            #-k：使用 Uvicorn Worker
+            #-w：Worker 数 一般设置 CPU核心 × 2 + 1
+            #-b：监听地址
+            
+    #systemd 托管
+    
+    [Unit]
+    Description=FastAPI
+    After=network.target
+    
+    [Service]
+    User=root
+    WorkingDirectory=/www/wwwroot/myfastapi
+    
+    ExecStart=/www/wwwroot/myfastapi/.venv/bin/gunicorn app.main:app \
+        --host 127.0.0.1 \
+        --port 8000 \
+        --workers 4
+    
+    Restart=always
+    
+    [Install]
+    WantedBy=multi-user.target
+    
+    #然后
+    systemctl daemon-reload
+    systemctl enable myfastapi
+    systemctl start myfastapi
+    #查看日志
+    journalctl -u myfastapi -f
+```
+
+uv run uvicorn app.main:app \
+        --host 127.0.0.1 \
+        --port 8000 \
+        --workers 4
 
 ```bash
   # 部署到 Linux 时要上传 .venv 吗？ 答案是：不需要

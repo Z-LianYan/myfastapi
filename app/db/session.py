@@ -12,11 +12,13 @@ engine = create_engine(
     echo=settings.DEBUG,
 
     # 自动检测失效连接
-    pool_pre_ping=True,
+    pool_pre_ping=True, # 避免数据库连接断开后出现 "MySQL server has gone away"
 
     # 连接池
-    pool_size=10,
-    max_overflow=20
+    pool_size=20, # 连接池大小
+    max_overflow=30, #连接不足时允许临时创建的连接数。
+
+    pool_recycle=3600 # 定期回收连接，减少长连接失效问题
 )
 
 try:
