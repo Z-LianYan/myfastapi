@@ -85,23 +85,32 @@
             
     #systemd 托管
     
-    [Unit]
-    Description=FastAPI
-    After=network.target
-    
-    [Service]
-    User=root
-    WorkingDirectory=/www/wwwroot/myfastapi
-    
-    ExecStart=/www/wwwroot/myfastapi/.venv/bin/gunicorn app.main:app \
-        --host 127.0.0.1 \
-        --port 8000 \
-        --workers 4
-    
-    Restart=always
-    
-    [Install]
-    WantedBy=multi-user.target
+        [Unit]
+        Description=My FastAPI Service
+        After=network.target
+        
+        [Service]
+        Type=simple
+        
+        # 运行用户
+        User=root
+        Group=root
+        
+        # 项目目录
+        WorkingDirectory=/www/wwwroot/myfastapi
+        
+        # 如果使用 uv
+        #ExecStart=/root/.local/bin/uv run uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 4
+        
+        # 如果使用 venv
+         ExecStart=/www/wwwroot/myfastapi/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 4
+        
+        Restart=always
+        RestartSec=3
+        
+        [Install]
+        WantedBy=multi-user.target
+
     
     #然后
     systemctl daemon-reload
